@@ -1,0 +1,80 @@
+version: '3.3'
+services:
+
+  api:
+    build:
+      context: ./yeti/
+      dockerfile: ./extras/docker/dev/Dockerfile
+    image: yeti
+    ports:
+      - "127.0.0.1:5000:5000"
+    depends_on:
+      - redis
+      - mongodb
+    entrypoint:
+      - /docker-entrypoint.sh
+      - webserver
+    volumes:
+      - /tmp/docker-yeti-exports:/opt/yeti/exports
+      - ./yeti/:/app/
+
+  frontend:
+    build:
+        context: ./yeti-feeds-frontend/
+        dockerfile: ./docker/dev/Dockerfile
+    environment:
+        - VUE_API_BACKEND=api
+    ports:
+        - 127.0.0.1:8080:8080
+    volumes:
+        - ./yeti-feeds-frontend/:/app/
+    entrypoint:
+      - /docker-entrypoint.sh
+      - dev
+
+  feeds:
+    image: yeti
+    command: ['feeds']
+    depends_on:
+      - redis
+      - mongodb
+      - yeti
+    environment:
+      - TLDEXTRACT_CACHE=/tmp/tldextract.cache
+
+  analytics:
+    image: yeti
+    command: ['analytics']
+    depends_on:
+      - redis
+      - mongodb
+      - yeti
+    environment:
+      - TLDEXTRACT_CACHE=/tmp/tldextract.cache
+
+  exports:
+    image: yeti
+    command: ['exports']
+    depends_on:
+      - redis
+      - mongodb
+      - yeti
+    volumes:
+      - /tmp/docker-yeti-exports:/opt/yeti/exports
+
+  oneshot:
+    image: yeti
+    command: ['oneshot']
+    depends_on:
+      - redis
+      - mongodb
+      - yeti
+
+  redis:
+    image: redis:latest
+
+  mongodb:
+    image: mongo:4.0.12
+    environment:
+      - MONGO_LOG_DIR=/dev/null
+    command: mongod
