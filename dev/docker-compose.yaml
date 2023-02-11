@@ -13,10 +13,14 @@ services:
       - mongodb
     entrypoint:
       - /docker-entrypoint.sh
-      - webserver
+    command:
+      - envshell
     volumes:
       - /tmp/docker-yeti-exports:/opt/yeti/exports
       - ./yeti/:/app/
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+
 
   frontend:
     build:
@@ -25,7 +29,7 @@ services:
     environment:
         - VUE_API_BACKEND=api
     ports:
-        - 127.0.0.1:8080:8080
+        - 8080:8080
     volumes:
         - ./yeti-feeds-frontend/:/app/
     entrypoint:
@@ -38,7 +42,7 @@ services:
     depends_on:
       - redis
       - mongodb
-      - yeti
+      - api
     environment:
       - TLDEXTRACT_CACHE=/tmp/tldextract.cache
 
@@ -48,7 +52,7 @@ services:
     depends_on:
       - redis
       - mongodb
-      - yeti
+      - api
     environment:
       - TLDEXTRACT_CACHE=/tmp/tldextract.cache
 
@@ -58,7 +62,7 @@ services:
     depends_on:
       - redis
       - mongodb
-      - yeti
+      - api
     volumes:
       - /tmp/docker-yeti-exports:/opt/yeti/exports
 
@@ -68,7 +72,7 @@ services:
     depends_on:
       - redis
       - mongodb
-      - yeti
+      - api
 
   redis:
     image: redis:latest
