@@ -21,6 +21,19 @@ services:
     stdin_open: true # docker run -i
     tty: true        # docker run -t
 
+  fastapi:
+    image: yeti
+    command: ['envshell']
+    ports:
+      - 127.0.0.1:8000:8000
+    depends_on:
+      - redis
+      - mongodb
+      - arangodb
+    environment:
+      - TLDEXTRACT_CACHE=/tmp/tldextract.cache
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
 
   frontend:
     build:
@@ -34,7 +47,10 @@ services:
         - ./yeti-feeds-frontend/:/app/
     entrypoint:
       - /docker-entrypoint.sh
+    command:
       - dev
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
 
   feeds:
     image: yeti
@@ -82,3 +98,10 @@ services:
     environment:
       - MONGO_LOG_DIR=/dev/null
     command: mongod
+
+  arangodb:
+    image: arangodb
+    ports:
+      - 127.0.0.1:8529:8529
+    environment:
+      - ARANGO_ROOT_PASSWORD=
