@@ -22,7 +22,12 @@ services:
   #   tty: true        # docker run -t
 
   fastapi:
+    build:
+      context: ./yeti/
+      dockerfile: ./extras/docker/dev/Dockerfile
     image: yeti
+    entrypoint:
+      - /docker-entrypoint.sh
     command: ['envshell']
     ports:
       - 127.0.0.1:8000:8000
@@ -31,6 +36,9 @@ services:
       - arangodb
     environment:
       - TLDEXTRACT_CACHE=/tmp/tldextract.cache
+    volumes:
+      - /tmp/docker-yeti-exports:/opt/yeti/exports
+      - ./yeti/:/app/
     stdin_open: true # docker run -i
     tty: true        # docker run -t
 
