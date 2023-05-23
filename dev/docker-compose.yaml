@@ -1,37 +1,44 @@
 version: '3.3'
 services:
 
-  api:
+  # api:
+  #   build:
+  #     context: ./yeti/
+  #     dockerfile: ./extras/docker/dev/Dockerfile
+  #   image: yeti
+  #   ports:
+  #     - "127.0.0.1:5000:5000"
+  #   depends_on:
+  #     - redis
+  #     - mongodb
+  #   entrypoint:
+  #     - /docker-entrypoint.sh
+  #   command:
+  #     - envshell
+  #   volumes:
+  #     - /tmp/docker-yeti-exports:/opt/yeti/exports
+  #     - ./yeti/:/app/
+  #   stdin_open: true # docker run -i
+  #   tty: true        # docker run -t
+
+  fastapi:
     build:
       context: ./yeti/
       dockerfile: ./extras/docker/dev/Dockerfile
     image: yeti
-    ports:
-      - "127.0.0.1:5000:5000"
-    depends_on:
-      - redis
-      - mongodb
     entrypoint:
       - /docker-entrypoint.sh
-    command:
-      - envshell
-    volumes:
-      - /tmp/docker-yeti-exports:/opt/yeti/exports
-      - ./yeti/:/app/
-    stdin_open: true # docker run -i
-    tty: true        # docker run -t
-
-  fastapi:
-    image: yeti
     command: ['envshell']
     ports:
       - 127.0.0.1:8000:8000
     depends_on:
       - redis
-      - mongodb
       - arangodb
     environment:
       - TLDEXTRACT_CACHE=/tmp/tldextract.cache
+    volumes:
+      - /tmp/docker-yeti-exports:/opt/yeti/exports
+      - ./yeti/:/app/
     stdin_open: true # docker run -i
     tty: true        # docker run -t
 
@@ -52,52 +59,52 @@ services:
     stdin_open: true # docker run -i
     tty: true        # docker run -t
 
-  feeds:
-    image: yeti
-    command: ['feeds']
-    depends_on:
-      - redis
-      - mongodb
-      - api
-    environment:
-      - TLDEXTRACT_CACHE=/tmp/tldextract.cache
+  # feeds:
+  #   image: yeti
+  #   command: ['feeds']
+  #   depends_on:
+  #     - redis
+  #     - mongodb
+  #     - api
+  #   environment:
+  #     - TLDEXTRACT_CACHE=/tmp/tldextract.cache
 
-  analytics:
-    image: yeti
-    command: ['analytics']
-    depends_on:
-      - redis
-      - mongodb
-      - api
-    environment:
-      - TLDEXTRACT_CACHE=/tmp/tldextract.cache
+  # analytics:
+  #   image: yeti
+  #   command: ['analytics']
+  #   depends_on:
+  #     - redis
+  #     - mongodb
+  #     - api
+  #   environment:
+  #     - TLDEXTRACT_CACHE=/tmp/tldextract.cache
 
-  exports:
-    image: yeti
-    command: ['exports']
-    depends_on:
-      - redis
-      - mongodb
-      - api
-    volumes:
-      - /tmp/docker-yeti-exports:/opt/yeti/exports
+  # exports:
+  #   image: yeti
+  #   command: ['exports']
+  #   depends_on:
+  #     - redis
+  #     - mongodb
+  #     - api
+  #   volumes:
+  #     - /tmp/docker-yeti-exports:/opt/yeti/exports
 
-  oneshot:
-    image: yeti
-    command: ['oneshot']
-    depends_on:
-      - redis
-      - mongodb
-      - api
+  # oneshot:
+  #   image: yeti
+  #   command: ['oneshot']
+  #   depends_on:
+  #     - redis
+  #     - mongodb
+  #     - api
 
   redis:
     image: redis:latest
 
-  mongodb:
-    image: mongo:4.0.12
-    environment:
-      - MONGO_LOG_DIR=/dev/null
-    command: mongod
+  # mongodb:
+  #   image: mongo:4.0.12
+  #   environment:
+  #     - MONGO_LOG_DIR=/dev/null
+  #   command: mongod
 
   arangodb:
     image: arangodb
