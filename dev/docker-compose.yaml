@@ -48,7 +48,7 @@ services:
     entrypoint:
       - /docker-entrypoint.sh
     command:
-      - dev
+      - shell
     stdin_open: true # docker run -i
     tty: true        # docker run -t
 
