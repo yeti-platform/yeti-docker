@@ -30,7 +30,7 @@ services:
       - /docker-entrypoint.sh
     command: ['envshell']
     ports:
-      - 127.0.0.1:8000:8000
+      - 8000:8000
     depends_on:
       - redis
       - arangodb
@@ -44,18 +44,19 @@ services:
 
   frontend:
     build:
-        context: ./yeti-feeds-frontend/
-        dockerfile: ./docker/dev/Dockerfile
+      context: ./yeti-feeds-frontend/
+      dockerfile: ./docker/dev/Dockerfile
+    image: yeti-feeds-frontend
     environment:
-        - VUE_API_BACKEND=api
+      - VUE_API_BACKEND=fastapi
     ports:
-        - 8080:8080
+      - 8080:8080
     volumes:
-        - ./yeti-feeds-frontend/:/app/
+      - ./yeti-feeds-frontend/:/app
     entrypoint:
       - /docker-entrypoint.sh
     command:
-      - shell
+      - /bin/bash
     stdin_open: true # docker run -i
     tty: true        # docker run -t
 
