@@ -3,8 +3,8 @@ services:
 
   api:
     build:
-      context: ./yeti/
-      dockerfile: ./extras/docker/dev/Dockerfile
+      context: D:\workspace\yeti\
+      dockerfile: D:\workspace\yeti\extras\docker\dev\Dockerfile
     image: yeti
     ports:
       - "127.0.0.1:5000:5000"
@@ -17,7 +17,7 @@ services:
       - envshell
     volumes:
       - /tmp/docker-yeti-exports:/opt/yeti/exports
-      - ./yeti/:/app/
+      - D:\workspace\yeti\:/app/
     stdin_open: true # docker run -i
     tty: true        # docker run -t
 
