@@ -19,10 +19,20 @@ Then once you get a root shell in the docker container (prompt like
 poetry run uvicorn core.web.webapp:app --reload --host 0.0.0.0
 ```
 
+NOTE: You can, of course, run all these commands directly into the `docker exec`
+command:
+
+```bash
+docker compose exec fastapi poetry run uvicorn core.web.webapp:app --reload --host 0.0.0.0
+```
+
+This will work for all the other commands in this doc.
+
 ### Celery
 
 If you wanna work with feeds, you need to run a celery worker. To do so, you
-need to run the following command from the `fastapi` container (prompt like `root@772ea966d9a8:/app#`)
+need to run the following command from the `fastapi` container (prompt like
+`root@772ea966d9a8:/app#`)
 
 ```bash
 poetry run celery -A core.taskmanager worker --loglevel=INFO
