@@ -1,10 +1,8 @@
 # Yeti Dev docker images
 
-## How-to
-
 Clone this repo, then run `./init.sh`. You might need some additional steps:
 
-### fastapi
+## `fastapi` container
 
 The `fastapi` container will run an `envshell`, so that it doesn't exit. To spin
 up a fastapi listener, you should launch the following commands from the
@@ -14,10 +12,20 @@ directory where the `docker-compose.yaml` file is.
 docker compose exec fastapi /bin/bash
 ```
 
-Then once you get a root shell in the docker container
+Then once you get a root shell in the docker container (prompt like
+`root@dcaa45f226bc:/app#`)
 
 ```bash
-root@dcaa45f226bc:/app# poetry run uvicorn core.web.webapp:app --reload --host 0.0.0.0
+poetry run uvicorn core.web.webapp:app --reload --host 0.0.0.0
+```
+
+### Celery
+
+If you wanna work with feeds, you need to run a celery worker. To do so, you
+need to run the following command from the `fastapi` container (prompt like `root@772ea966d9a8:/app#`)
+
+```bash
+poetry run celery -A core.taskmanager worker --loglevel=INFO
 ```
 
 ### Settings
@@ -47,7 +55,7 @@ password =
 database = yeti_dev
 ```
 
-### frontend
+## `frontend` container
 
 ### First time run
 
@@ -64,14 +72,15 @@ then start a server listener. This will also set an install trace
 `.node_installed` so that the command can be called again without all the
 process of installing node modules.
 
-### Listener
+### Server listener
 
 ```bash
 docker compose exec frontend /bin/bash
 ```
 
-Then once you get a root shell in the docker container:
+Then once you get a root shell in the docker container (prompt like
+`root@772ea966d9a8:/app#`):
 
 ```bash
-root@772ea966d9a8:/app# npm run serve
+npm run serve
 ```
