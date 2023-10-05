@@ -18,7 +18,7 @@ services:
       - TLDEXTRACT_CACHE=/tmp/tldextract.cache
     volumes:
       - /tmp/docker-yeti-exports:/opt/yeti/exports
-      - ./yeti/:/app/
+      - D:\workspace\yeti\:/app/
     stdin_open: true # docker run -i
     tty: true        # docker run -t
 
