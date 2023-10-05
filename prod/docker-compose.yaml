@@ -25,7 +25,7 @@ services:
       - YETI_AUTH_SECRET_KEY=SECRET
       - YETI_AUTH_ALGORITHM=HS256
       - YETI_AUTH_ACCESS_TOKEN_EXPIRE_MINUTES=30
-      - YETI_AUTH_ENABLED=False=value
+      - YETI_AUTH_ENABLED=False
     build:
       dockerfile: ./yeti/Dockerfile
     image: yeti
@@ -39,18 +39,27 @@ services:
       - arangodb
     volumes:
       - /tmp/docker-yeti-exports:/opt/yeti/exports
-    stdin_open: true # docker run -i
-    tty: true        # docker run -t
 
-  # tasks:
-  #   image: yeti
-  #   command: ['tasks']
-  #   depends_on:
-  #     - redis
-  #     - arangodb
-  #     - api
-  #   stdin_open: true # docker run -i
-  #   tty: true        # docker run -t
+  tasks:
+    environment:
+      - YETI_REDIS_HOST=redis
+      - YETI_REDIS_PORT=6379
+      - YETI_REDIS_DATABASE=0
+      - YETI_ARANGODB_HOST=arangodb
+      - YETI_ARANGODB_PORT=8529
+      - YETI_ARANGODB_DATABASE=yeti
+      - YETI_ARANGODB_USERNAME=root
+      - YETI_ARANGODB_PASSWORD=
+      - YETI_AUTH_SECRET_KEY=SECRET
+      - YETI_AUTH_ALGORITHM=HS256
+      - YETI_AUTH_ACCESS_TOKEN_EXPIRE_MINUTES=30
+      - YETI_AUTH_ENABLED=False
+    image: yeti
+    command: ['tasks']
+    depends_on:
+      - redis
+      - arangodb
+      - api
 
   redis:
     image: redis:latest
