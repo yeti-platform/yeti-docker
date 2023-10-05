@@ -1,10 +1,10 @@
 version: '3.3'
 services:
 
-  yeti-api:
+  fastapi:
     build:
       context: ./yeti/
-      dockerfile: ./extras/docker/prod/Dockerfile
+      dockerfile: ./extras/docker/dev/Dockerfile
     image: yeti
     entrypoint:
       - /docker-entrypoint.sh
