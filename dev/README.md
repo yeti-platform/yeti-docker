@@ -73,7 +73,7 @@ The `frontend` container starts a `/bin/bash` shell, so that it doesn't exit. To
 spin up a frontend listener, you should launch the following commands.
 
 ```bash
-docker compose exec /docker-entrypoint.sh dev
+docker compose exec frontend /docker-entrypoint.sh dev
 ```
 
 This will install all node modules so that the "installation" persists across
