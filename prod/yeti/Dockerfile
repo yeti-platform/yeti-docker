@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y \
 
 RUN git clone https://github.com/yeti-platform/yeti.git /app
 WORKDIR /app
-RUN git checkout prod
+RUN git checkout fastapi
 RUN cp ./extras/docker/scripts/docker-entrypoint.sh /docker-entrypoint.sh
 
 # Upgrade pip
