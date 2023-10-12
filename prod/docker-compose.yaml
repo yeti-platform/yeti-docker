@@ -1,10 +1,10 @@
 version: '3.3'
 services:
 
-  nginx:
+  frontend:
     build:
-      dockerfile: ./nginx/Dockerfile
-    image: nginx
+      dockerfile: ./frontend/Dockerfile
+    image: frontend
     ports:
       - 80:80
     volumes:
