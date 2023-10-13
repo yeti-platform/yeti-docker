@@ -4,7 +4,7 @@ services:
   frontend:
     build:
       dockerfile: ./frontend/Dockerfile
-    image: frontend
+    image: yetiplatform/yeti-frontend:latest
     ports:
       - 80:80
     volumes:
@@ -13,6 +13,9 @@ services:
       - api
 
   api:
+    image: yetiplatform/yeti:latest
+    build:
+      dockerfile: ./yeti/Dockerfile
     environment:
       - YETI_REDIS_HOST=prod-redis-1
       - YETI_REDIS_PORT=6379
@@ -26,9 +29,6 @@ services:
       - YETI_AUTH_ALGORITHM=HS256
       - YETI_AUTH_ACCESS_TOKEN_EXPIRE_MINUTES=30
       - YETI_AUTH_ENABLED=False
-    build:
-      dockerfile: ./yeti/Dockerfile
-    image: yeti
     entrypoint:
       - /docker-entrypoint.sh
     command: ["poetry", "run", "uvicorn", "core.web.webapp:app", "--host", "0.0.0.0"]
@@ -41,6 +41,9 @@ services:
       - /tmp/docker-yeti-exports:/opt/yeti/exports
 
   tasks:
+    image: yetiplatform/yeti:latest
+    build:
+      dockerfile: ./yeti/Dockerfile
     environment:
       - YETI_REDIS_HOST=prod-redis-1
       - YETI_REDIS_PORT=6379
@@ -54,7 +57,6 @@ services:
       - YETI_AUTH_ALGORITHM=HS256
       - YETI_AUTH_ACCESS_TOKEN_EXPIRE_MINUTES=30
       - YETI_AUTH_ENABLED=False
-    image: yeti
     command: ['tasks']
     depends_on:
       - redis
