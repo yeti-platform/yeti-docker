@@ -2,6 +2,7 @@ version: '3.3'
 services:
 
   frontend:
+    container_name: yeti-frontend
     build:
       dockerfile: ./frontend/Dockerfile
     image: yetiplatform/yeti-frontend:latest
@@ -13,22 +14,12 @@ services:
       - api
 
   api:
+    container_name: yeti-api
     image: yetiplatform/yeti:latest
     build:
       dockerfile: ./yeti/Dockerfile
-    environment:
-      - YETI_REDIS_HOST=prod-redis-1
-      - YETI_REDIS_PORT=6379
-      - YETI_REDIS_DATABASE=0
-      - YETI_ARANGODB_HOST=prod-arangodb-1
-      - YETI_ARANGODB_PORT=8529
-      - YETI_ARANGODB_DATABASE=yeti
-      - YETI_ARANGODB_USERNAME=root
-      - YETI_ARANGODB_PASSWORD=
-      - YETI_AUTH_SECRET_KEY=SECRET
-      - YETI_AUTH_ALGORITHM=HS256
-      - YETI_AUTH_ACCESS_TOKEN_EXPIRE_MINUTES=30
-      - YETI_AUTH_ENABLED=False
+    env_file:
+      - ${YETI_DOCKER_ENVFILE}
     entrypoint:
       - /docker-entrypoint.sh
     command: ["poetry", "run", "uvicorn", "core.web.webapp:app", "--host", "0.0.0.0"]
@@ -41,22 +32,12 @@ services:
       - /tmp/docker-yeti-exports:/opt/yeti/exports
 
   tasks:
+    container_name: yeti-tasks
     image: yetiplatform/yeti:latest
     build:
       dockerfile: ./yeti/Dockerfile
-    environment:
-      - YETI_REDIS_HOST=prod-redis-1
-      - YETI_REDIS_PORT=6379
-      - YETI_REDIS_DATABASE=0
-      - YETI_ARANGODB_HOST=prod-arangodb-1
-      - YETI_ARANGODB_PORT=8529
-      - YETI_ARANGODB_DATABASE=yeti
-      - YETI_ARANGODB_USERNAME=root
-      - YETI_ARANGODB_PASSWORD=
-      - YETI_AUTH_SECRET_KEY=SECRET
-      - YETI_AUTH_ALGORITHM=HS256
-      - YETI_AUTH_ACCESS_TOKEN_EXPIRE_MINUTES=30
-      - YETI_AUTH_ENABLED=False
+    env_file:
+      - ${YETI_DOCKER_ENVFILE}
     command: ['tasks']
     depends_on:
       - redis
@@ -64,11 +45,17 @@ services:
       - api
 
   redis:
+    container_name: yeti-redis
     image: redis:latest
 
   arangodb:
+    container_name: yeti-arangodb
     image: arangodb
     ports:
       - 127.0.0.1:8529:8529
     environment:
       - ARANGO_ROOT_PASSWORD=
+
+networks:
+  default:
+    name: yeti_network
