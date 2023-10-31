@@ -12,3 +12,10 @@ docker compose up
 ```
 
 Should get you a Yeti instance running on http://localhost:80
+
+
+## Add an admin user to Yeti
+
+```bash
+docker compose exec fastapi yetictl create-user yeti yeti --admin
+```

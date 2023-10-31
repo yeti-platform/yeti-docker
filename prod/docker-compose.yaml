@@ -24,7 +24,7 @@ services:
       - ${YETI_DOCKER_ENVFILE}
     entrypoint:
       - /docker-entrypoint.sh
-    command: ["poetry", "run", "uvicorn", "core.web.webapp:app", "--host", "0.0.0.0"]
+    command: ["webserver"]
     ports:
       - 8000:8000
     depends_on:
