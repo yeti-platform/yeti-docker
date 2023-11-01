@@ -21,6 +21,8 @@ RUN pip3 install --upgrade pip && pip3 install poetry
 # Install yeti
 RUN poetry install --with plugins
 
+ENV PYTHONPATH /app
+
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
 CMD ["webserver"]
