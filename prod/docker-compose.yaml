@@ -5,7 +5,6 @@ services:
     container_name: yeti-frontend
     build:
       dockerfile: ./frontend/Dockerfile
-    platform: linux/amd64
     image: yetiplatform/yeti-frontend:latest
     ports:
       - 80:80
@@ -17,7 +16,6 @@ services:
   api:
     container_name: yeti-api
     image: yetiplatform/yeti:latest
-    platform: linux/amd64
     build:
       dockerfile: ./yeti/Dockerfile
     env_file:
