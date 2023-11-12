@@ -1,7 +1,7 @@
 version: '3.3'
 services:
 
-  fastapi:
+  api:
     environment:
       - YETI_REDIS_HOST=redis
       - YETI_REDIS_PORT=6379
