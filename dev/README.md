@@ -2,14 +2,14 @@
 
 Clone this repo, then run `./init.sh`. You might need some additional steps:
 
-## `fastapi` container
+## `api` container
 
-The `fastapi` container will run an `envshell`, so that it doesn't exit. To spin
-up a fastapi listener, you should launch the following commands from the
+The `api` container will run an `envshell`, so that it doesn't exit. To spin
+up a api listener, you should launch the following commands from the
 directory where the `docker-compose.yaml` file is.
 
 ```bash
-docker compose exec fastapi /bin/bash
+docker compose exec api /bin/bash
 ```
 
 Then once you get a root shell in the docker container (prompt like
@@ -23,7 +23,7 @@ NOTE: You can, of course, run all these commands directly into the `docker exec`
 command:
 
 ```bash
-docker compose exec fastapi poetry run uvicorn core.web.webapp:app --reload --host 0.0.0.0
+docker compose exec api poetry run uvicorn core.web.webapp:app --reload --host 0.0.0.0
 ```
 
 This will work for all the other commands in this doc.
@@ -31,7 +31,7 @@ This will work for all the other commands in this doc.
 ### Celery
 
 If you wanna work with feeds, you need to run a celery worker. To do so, you
-need to run the following command from the `fastapi` container (prompt like
+need to run the following command from the `api` container (prompt like
 `root@772ea966d9a8:/app#`)
 
 ```bash

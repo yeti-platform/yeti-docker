@@ -6,7 +6,6 @@ RUN npm install -g n && n 16
 
 RUN git clone https://github.com/yeti-platform/yeti-feeds-frontend.git /app
 WORKDIR /app
-RUN git checkout fastapi
 
 RUN npm install
 RUN npm run build

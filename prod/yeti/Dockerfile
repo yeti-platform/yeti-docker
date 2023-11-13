@@ -9,9 +9,7 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean && rm -rf /var/cache/apt/* /var/lib/apt/lists/*
 
 RUN git clone https://github.com/yeti-platform/yeti.git /app
-# RUN curl -o yeti.zip -L https://github.com/yeti-platform/yeti/archive/refs/heads/fastapi.zip && unzip yeti.zip && mv yeti-fastapi /app
 WORKDIR /app
-RUN git checkout fastapi
 RUN cp yeti.conf.sample yeti.conf
 RUN cp ./extras/docker/docker-entrypoint.sh /docker-entrypoint.sh
 
