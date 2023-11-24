@@ -35,7 +35,7 @@ need to run the following command from the `api` container (prompt like
 `root@772ea966d9a8:/app#`)
 
 ```bash
-poetry run celery -A core.taskmanager worker --loglevel=INFO
+poetry run celery -A core.taskscheduler worker --loglevel=INFO
 ```
 
 ### Settings
