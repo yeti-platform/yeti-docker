@@ -1,0 +1,17 @@
+name: Docker prod test
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Pull docker images from DockerHub
+        run: docker compose -f prod/docker-compose.yaml up -d
+      - name: Sleep for 1 minute
+        run: sleep 60
+      - name: Test access to the web UI
+        run: curl http://localhost:8000/api/v2/observables/
