@@ -15,6 +15,7 @@ services:
       - YETI_AUTH_ALGORITHM=HS256
       - YETI_AUTH_ACCESS_TOKEN_EXPIRE_MINUTES=30
       - YETI_AUTH_ENABLED=False
+      - YETI_SYSTEM_PLUGINS_PATH=./plugins
     build:
       context: ./yeti/
       dockerfile: ./extras/docker/dev/Dockerfile
@@ -42,6 +43,7 @@ services:
       - VUE_API_BACKEND=api
     ports:
       - 127.0.0.1:8080:8080
+      - 127.0.0.1:3000:3000
     volumes:
       - ./yeti-feeds-frontend/:/app
     entrypoint:
@@ -53,6 +55,8 @@ services:
 
   redis:
     image: redis:latest
+    ports:
+      - 127.0.0.1:6379:6379
 
   arangodb:
     image: arangodb
