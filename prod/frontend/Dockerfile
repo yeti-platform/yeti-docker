@@ -1,8 +1,7 @@
 #  Container used to build the minified frontend JS code
 FROM node:buster AS frontend-builder
 
-RUN apt update && apt install git python3
-RUN npm install -g n && n 16
+RUN apt update && apt install git
 
 RUN git clone https://github.com/yeti-platform/yeti-feeds-frontend.git /app
 WORKDIR /app
