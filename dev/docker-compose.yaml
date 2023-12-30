@@ -39,8 +39,6 @@ services:
       context: ./yeti-feeds-frontend/
       dockerfile: ./docker/dev/Dockerfile
     image: yeti-feeds-frontend
-    environment:
-      - VUE_API_BACKEND=api
     ports:
       - 127.0.0.1:8080:8080
       - 127.0.0.1:3000:3000
