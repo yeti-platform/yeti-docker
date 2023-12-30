@@ -47,14 +47,10 @@ services:
   redis:
     container_name: yeti-redis
     image: redis:latest
-    ports:
-      - 127.0.0.1:6379:6379
 
   arangodb:
     container_name: yeti-arangodb
     image: arangodb
-    ports:
-      - 127.0.0.1:8529:8529
     environment:
       - ARANGO_ROOT_PASSWORD=
 
