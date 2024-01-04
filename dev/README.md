@@ -40,7 +40,8 @@ poetry run celery -A core.taskscheduler worker --loglevel=INFO
 
 ### Settings
 
-You can bring some tweaks to `yeti.conf` to make development a bit easier:
+If you want to make some tweaks to `yeti.conf` to make development a bit easier, 
+copy the example file (`cp yeti.conf.sample yeti.conf`) and make changes such as:
 
 The `[auth]` section should look like this:
 
