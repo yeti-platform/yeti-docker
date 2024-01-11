@@ -43,6 +43,8 @@ services:
       - redis
       - arangodb
       - api
+    volumes:
+      - /tmp/docker-yeti-exports:/opt/yeti/exports
 
   redis:
     container_name: yeti-redis
