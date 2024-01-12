@@ -16,7 +16,7 @@ services:
       - YETI_AUTH_ACCESS_TOKEN_EXPIRE_MINUTES=30
       - YETI_AUTH_ENABLED=False
       - YETI_SYSTEM_PLUGINS_PATH=./plugins
-      - YETI_EXPORT_PATH=${YETI_EXPORT_PATH:-/opt/yeti/exports}
+      - YETI_SYSTEM_EXPORT_PATH=${YETI_SYSTEM_EXPORT_PATH:-/opt/yeti/exports}
     build:
       context: ./yeti/
       dockerfile: ./extras/docker/dev/Dockerfile
@@ -30,7 +30,7 @@ services:
       - redis
       - arangodb
     volumes:
-      - /tmp/docker-yeti-exports:${YETI_EXPORT_PATH:-/opt/yeti/exports}
+      - /tmp/docker-yeti-exports:${YETI_SYSTEM_EXPORT_PATH:-/opt/yeti/exports}
       - ./yeti/:/app/
     stdin_open: true # docker run -i
     tty: true        # docker run -t

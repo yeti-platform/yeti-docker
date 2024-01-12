@@ -29,7 +29,7 @@ services:
       - redis
       - arangodb
     volumes:
-      - /tmp/docker-yeti-exports:${YETI_EXPORT_PATH:-/opt/yeti/exports}
+      - /tmp/docker-yeti-exports:${YETI_SYSTEM_EXPORT_PATH:-/opt/yeti/exports}
 
   tasks:
     container_name: yeti-tasks
@@ -44,7 +44,7 @@ services:
       - arangodb
       - api
     volumes:
-      - /tmp/docker-yeti-exports:${YETI_EXPORT_PATH:-/opt/yeti/exports}
+      - /tmp/docker-yeti-exports:${YETI_SYSTEM_EXPORT_PATH:-/opt/yeti/exports}
 
   redis:
     container_name: yeti-redis
