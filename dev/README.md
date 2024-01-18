@@ -66,6 +66,11 @@ password =
 database = yeti_dev
 ```
 
+### Create User for dev
+
+```
+docker compose exec -it api /docker-entrypoint.sh create-user yeti yeti --admin
+```
 ## `frontend` container
 
 ### First time run
@@ -93,5 +98,5 @@ Then once you get a root shell in the docker container (prompt like
 `root@772ea966d9a8:/app#`):
 
 ```bash
-npm run serve
+npm run dev
 ```
