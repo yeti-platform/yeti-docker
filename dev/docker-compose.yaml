@@ -57,7 +57,7 @@ services:
       - 127.0.0.1:6379:6379
 
   arangodb:
-    image: arangodb
+    image: arangodb:3.11.8
     ports:
       - 127.0.0.1:8529:8529
     environment:
