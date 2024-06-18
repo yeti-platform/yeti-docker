@@ -54,7 +54,7 @@ services:
     environment:
       - ARANGO_ROOT_PASSWORD=
     volumes:
-      - /yeti-data:/var/lib/arangodb3
+      - ./yeti-data:/var/lib/arangodb3
 
 networks:
   default:
