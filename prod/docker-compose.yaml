@@ -29,7 +29,7 @@ services:
       - redis
       - arangodb
     volumes:
-      - /tmp/docker-yeti-exports:/opt/yeti/exports
+      - yeti-exports:/opt/yeti/exports
 
   tasks:
     container_name: yeti-tasks
@@ -43,6 +43,9 @@ services:
       - redis
       - arangodb
       - api
+    volumes:
+      - yeti-exports:/opt/yeti/exports
+
 
   redis:
     container_name: yeti-redis
@@ -54,8 +57,14 @@ services:
     environment:
       - ARANGO_ROOT_PASSWORD=
     volumes:
-      - /yeti-data:/var/lib/arangodb3
+      - yeti-db:/var/lib/arangodb3
 
 networks:
   default:
     name: yeti_network
+
+volumes:
+  yeti-exports:
+    driver: local
+  yeti-db:
+    driver: local
