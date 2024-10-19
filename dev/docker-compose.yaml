@@ -14,6 +14,7 @@ services:
       - YETI_AUTH_SECRET_KEY=SECRET
       - YETI_AUTH_ALGORITHM=HS256
       - YETI_AUTH_ACCESS_TOKEN_EXPIRE_MINUTES=30
+      - YETI_AUTH_BROWSER_TOKEN_EXPIRE_MINUTES=43200
       - YETI_AUTH_ENABLED=False
       - YETI_SYSTEM_PLUGINS_PATH=./plugins
     build:
@@ -57,7 +58,7 @@ services:
       - 127.0.0.1:6379:6379
 
   arangodb:
-    image: arangodb:3.11.8
+    image: arangodb:3.11
     ports:
       - 127.0.0.1:8529:8529
     environment:
