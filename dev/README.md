@@ -38,6 +38,19 @@ need to run the following command from the `api` container (prompt like
 poetry run celery -A core.taskscheduler worker --loglevel=INFO
 ```
 
+### Events tasks
+
+If you wanna work with events tasks, you need to run one or several events 
+consumers. To do so, you need to run the following command from the `api` 
+container (prompt like `root@772ea966d9a8:/app#`).
+
+```bash
+poetry run python -m core.events.consumers events
+```
+
+You can adjust concurrency with `--concurrency <number_of_worker>` and enable
+debugging output with `--debug`.
+
 ### Settings
 
 If you want to make some tweaks to `yeti.conf` to make development a bit easier, 

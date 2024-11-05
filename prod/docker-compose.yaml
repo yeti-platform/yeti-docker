@@ -46,6 +46,20 @@ services:
     volumes:
       - yeti-exports:/opt/yeti/exports
 
+  events-tasks:
+    container_name: yeti-events-tasks
+    image: yetiplatform/yeti:latest
+    build:
+      dockerfile: ./yeti/Dockerfile
+    env_file:
+      - ${YETI_DOCKER_ENVFILE}
+    command: ['events-tasks']
+    depends_on:
+      - redis
+      - arangodb
+      - api
+    volumes:
+      - yeti-exports:/opt/yeti/exports
 
   redis:
     container_name: yeti-redis
