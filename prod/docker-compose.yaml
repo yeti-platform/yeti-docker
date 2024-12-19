@@ -61,6 +61,17 @@ services:
     volumes:
       - yeti-exports:/opt/yeti/exports
 
+  tasks-beat:
+    container_name: yeti-tasks-beat
+    image: yetiplatform/yeti:latest
+    build:
+      dockerfile: ./yeti/Dockerfile
+    env_file:
+      - ${YETI_DOCKER_ENVFILE}
+    command: ['tasks-beat']
+    depends_on:
+      - redis
+
   redis:
     container_name: yeti-redis
     image: redis:latest
