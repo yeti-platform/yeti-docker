@@ -1,4 +1,3 @@
-version: '3.3'
 services:
 
   api:
@@ -21,9 +20,8 @@ services:
       context: ./yeti/
       dockerfile: ./extras/docker/dev/Dockerfile
     image: yeti
-    entrypoint:
-      - /docker-entrypoint.sh
-    command: ['/bin/bash']
+    entrypoint: ["/bin/bash", "/docker-entrypoint.sh"]
+    command: ['envshell']
     ports:
       - 127.0.0.1:8000:8000
     depends_on:
