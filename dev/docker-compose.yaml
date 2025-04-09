@@ -50,6 +50,14 @@ services:
     stdin_open: true # docker run -i
     tty: true        # docker run -t
 
+  bloomcheck:
+    container_name: bloomcheck
+    image: yetiplatform/bloomcheck:dev
+    entrypoint: ['/app/bloomcheck', '-serve', '/data/filterdata/testing']
+    image: bloomcheck:latest
+    volumes:
+      - /data:/data
+
   redis:
     image: redis:latest
     ports:
