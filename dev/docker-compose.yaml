@@ -53,10 +53,9 @@ services:
   bloomcheck:
     container_name: bloomcheck
     image: yetiplatform/bloomcheck:dev
-    entrypoint: ['/app/bloomcheck', '-serve', '/data/filterdata/testing']
-    image: bloomcheck:latest
+    entrypoint: ['/app/bloomcheck', '-serve', '/bloomfilters']
     volumes:
-      - /data:/data
+      - /bloomfilters:/bloomfilters
 
   redis:
     image: redis:latest

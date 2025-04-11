@@ -86,10 +86,9 @@ services:
   bloomcheck:
     container_name: bloomcheck
     image: yetiplatform/bloomcheck:dev
-    entrypoint: ['/app/bloomcheck', '-serve', '/data/filterdata/1T/']
-    image: bloomcheck:latest
+    entrypoint: ['/app/bloomcheck', '-serve', '/bloomfilters']
     volumes:
-      - /data:/data
+      - ${YETI_BLOOMFILTERS_DIR}:/bloomfilters
 
 networks:
   default:
