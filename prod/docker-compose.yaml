@@ -88,7 +88,7 @@ services:
     image: yetiplatform/bloomcheck:dev
     entrypoint: ['/app/bloomcheck', '-serve', '/bloomfilters']
     volumes:
-      - ${YETI_BLOOMFILTERS_DIR}:/bloomfilters
+      - ${YETI_BLOOM_FILTERS_DIR}:/bloomfilters
 
 networks:
   default:
