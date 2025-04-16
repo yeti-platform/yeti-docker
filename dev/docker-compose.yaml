@@ -55,7 +55,7 @@ services:
     image: yetiplatform/bloomcheck:dev
     entrypoint: ['/app/bloomcheck', '-serve', '/bloomfilters']
     volumes:
-      - /bloomfilters:/bloomfilters
+      - /bloomfilters:/bloomfilters:ro
 
   redis:
     image: redis:latest
