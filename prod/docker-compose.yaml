@@ -83,6 +83,13 @@ services:
     volumes:
       - yeti-db:/var/lib/arangodb3
 
+  bloomcheck:
+    container_name: bloomcheck
+    image: yetiplatform/bloomcheck:dev
+    entrypoint: ['/app/bloomcheck', '-serve', '/bloomfilters']
+    volumes:
+      - ${YETI_BLOOM_FILTERS_DIR}:/bloomfilters:ro
+
 networks:
   default:
     name: yeti_network
