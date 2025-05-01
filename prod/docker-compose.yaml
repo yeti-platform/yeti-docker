@@ -78,6 +78,7 @@ services:
   arangodb:
     container_name: yeti-arangodb
     image: arangodb:3.11
+    restart: unless-stopped
     environment:
       - ARANGO_ROOT_PASSWORD=
     volumes:
