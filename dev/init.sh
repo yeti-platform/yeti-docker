@@ -5,4 +5,6 @@ cp yeti/yeti.conf.sample yeti/yeti.conf
 
 git clone https://github.com/yeti-platform/yeti-feeds-frontend.git
 
+mkdir -p /tmp/bloomfilters
+
 docker compose up
