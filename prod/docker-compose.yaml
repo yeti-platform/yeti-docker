@@ -91,6 +91,14 @@ services:
     volumes:
       - ${YETI_BLOOM_FILTERS_DIR}:/bloomfilters:ro
 
+  agents:
+    container_name: agents
+    image: yetiplatform/agents:dev
+    env_file:
+      - ${YETI_DOCKER_ENVFILE}
+    entrypoint: [ "/bin/bash", "/app/entrypoint.sh" ]
+    command: [ "run" ]
+
 networks:
   default:
     name: yeti_network
