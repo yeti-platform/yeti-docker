@@ -1,10 +1,7 @@
 services:
 
   frontend:
-    container_name: yeti-frontend
-    build:
-      dockerfile: ./frontend/Dockerfile
-    image: yetiplatform/yeti-frontend:latest
+    image: yetiplatform/yeti-frontend:${YETI_IMAGE_TAG:-latest}
     ports:
       - 80:80
     volumes:
@@ -13,17 +10,14 @@ services:
       - api
 
   api:
-    container_name: yeti-api
-    image: yetiplatform/yeti:latest
-    build:
-      dockerfile: ./yeti/Dockerfile
+    image: yetiplatform/yeti:${YETI_IMAGE_TAG:-latest}
     env_file:
       - ${YETI_DOCKER_ENVFILE}
     entrypoint:
       - /docker-entrypoint.sh
     command: ["webserver"]
     ports:
-      - 8000:8000
+      - 8001:8000
     depends_on:
       - redis
       - arangodb
@@ -31,10 +25,7 @@ services:
       - yeti-exports:/opt/yeti/exports
 
   tasks:
-    container_name: yeti-tasks
-    image: yetiplatform/yeti:latest
-    build:
-      dockerfile: ./yeti/Dockerfile
+    image: yetiplatform/yeti:${YETI_IMAGE_TAG:-latest}
     env_file:
       - ${YETI_DOCKER_ENVFILE}
     command: ['tasks']
@@ -46,10 +37,7 @@ services:
       - yeti-exports:/opt/yeti/exports
 
   events-tasks:
-    container_name: yeti-events-tasks
-    image: yetiplatform/yeti:latest
-    build:
-      dockerfile: ./yeti/Dockerfile
+    image: yetiplatform/yeti:${YETI_IMAGE_TAG:-latest}
     env_file:
       - ${YETI_DOCKER_ENVFILE}
     command: ['events-tasks']
@@ -61,10 +49,7 @@ services:
       - yeti-exports:/opt/yeti/exports
 
   tasks-beat:
-    container_name: yeti-tasks-beat
-    image: yetiplatform/yeti:latest
-    build:
-      dockerfile: ./yeti/Dockerfile
+    image: yetiplatform/yeti:${YETI_IMAGE_TAG:-latest}
     env_file:
       - ${YETI_DOCKER_ENVFILE}
     command: ['tasks-beat']
@@ -72,11 +57,9 @@ services:
       - redis
 
   redis:
-    container_name: yeti-redis
     image: redis:latest
 
   arangodb:
-    container_name: yeti-arangodb
     image: arangodb:3.11
     restart: unless-stopped
     environment:
@@ -85,23 +68,20 @@ services:
       - yeti-db:/var/lib/arangodb3
 
   bloomcheck:
-    container_name: bloomcheck
-    image: yetiplatform/bloomcheck:dev
+    image: yetiplatform/bloomcheck:${YETI_IMAGE_TAG:-latest}
     entrypoint: ['/app/bloomcheck', '-serve', '/bloomfilters']
     volumes:
       - ${YETI_BLOOM_FILTERS_DIR}:/bloomfilters:ro
 
   agents:
-    container_name: agents
-    image: yetiplatform/agents:dev
+    image: yetiplatform/yeti-agents:${YETI_IMAGE_TAG:-latest}
     env_file:
       - ${YETI_DOCKER_ENVFILE}
-    entrypoint: [ "/bin/bash", "/app/entrypoint.sh" ]
-    command: [ "run" ]
+    command: ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8888"]
 
 networks:
   default:
-    name: yeti_network
+    name: yeti_prod_network
 
 volumes:
   yeti-exports:
