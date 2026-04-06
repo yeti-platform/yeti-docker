@@ -48,14 +48,7 @@ services:
     command:
       - /bin/bash
     stdin_open: true # docker run -i
-    tty: true        # docker run -t
-
-  bloomcheck:
-    container_name: bloomcheck
-    image: yetiplatform/bloomcheck:dev
-    entrypoint: ['/app/bloomcheck', '-serve', '/bloomfilters']
-    volumes:
-      - /tmp/bloomfilters:/bloomfilters:ro
+    tty: true # docker run -t
 
   redis:
     image: redis:latest
@@ -68,3 +61,45 @@ services:
       - 127.0.0.1:8529:8529
     environment:
       - ARANGO_ROOT_PASSWORD=
+
+  # Microservices
+
+  bloomcheck:
+    container_name: bloomcheck
+    image: yetiplatform/bloomcheck:dev
+    entrypoint: [ '/app/bloomcheck', '-serve', '/bloomfilters' ]
+    volumes:
+      - /tmp/bloomfilters:/bloomfilters:ro
+
+  agents:
+    container_name: agents
+    build:
+      context: ./yeti-agents/
+    image: yetiplatform/yeti-agents:dev
+    ports:
+      - 127.0.0.1:8888:8888
+    env_file:
+      - ./yeti-agents/.env
+    volumes:
+      - ./yeti-agents/:/app
+    entrypoint: [ "/bin/bash", "/app/entrypoint.sh" ]
+    command: [ "manual" ]
+
+  ollama:
+    container_name: ollama
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama # Persist downloaded models
+    # Uncomment the below if you have an NVIDIA GPU and the nvidia-container-toolkit installed
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+volumes:
+  ollama_data:
