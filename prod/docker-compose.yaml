@@ -77,6 +77,10 @@ services:
     image: yetiplatform/yeti-agents:${YETI_IMAGE_TAG:-latest}
     env_file:
       - ${YETI_DOCKER_ENVFILE}
+    environment:
+      - YETI_AGENTS_DB_PATH=/data/sessions.db
+    volumes:
+      - yeti-agents-data:/data
     command: ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8888"]
 
 networks:
@@ -84,6 +88,8 @@ networks:
     name: yeti_prod_network
 
 volumes:
+  yeti-agents-data:
+    driver: local
   yeti-exports:
     driver: local
   yeti-db:
