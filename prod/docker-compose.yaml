@@ -19,8 +19,10 @@ services:
     ports:
       - 8001:8000
     depends_on:
-      - redis
-      - arangodb
+      redis:
+        condition: service_started
+      arangodb:
+        condition: service_healthy
     volumes:
       - yeti-exports:/opt/yeti/exports
 
@@ -30,9 +32,12 @@ services:
       - ${YETI_DOCKER_ENVFILE}
     command: ['tasks']
     depends_on:
-      - redis
-      - arangodb
-      - api
+      redis:
+        condition: service_started
+      arangodb:
+        condition: service_healthy
+      api:
+        condition: service_started
     volumes:
       - yeti-exports:/opt/yeti/exports
 
@@ -42,9 +47,12 @@ services:
       - ${YETI_DOCKER_ENVFILE}
     command: ['events-tasks']
     depends_on:
-      - redis
-      - arangodb
-      - api
+      redis:
+        condition: service_started
+      arangodb:
+        condition: service_healthy
+      api:
+        condition: service_started
     volumes:
       - yeti-exports:/opt/yeti/exports
 
@@ -54,7 +62,10 @@ services:
       - ${YETI_DOCKER_ENVFILE}
     command: ['tasks-beat']
     depends_on:
-      - redis
+      redis:
+        condition: service_started
+      arangodb:
+        condition: service_healthy
 
   redis:
     image: redis:latest
@@ -66,6 +77,12 @@ services:
       - ARANGO_ROOT_PASSWORD=
     volumes:
       - yeti-db:/var/lib/arangodb3
+    healthcheck:
+      test: ["CMD-SHELL", "arangosh --server.endpoint tcp://127.0.0.1:8529 --server.username root --server.password \"$$ARANGO_ROOT_PASSWORD\" --javascript.execute-string 'db._version()' >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 5s
+      start_period: 30s
+      retries: 10
 
   bloomcheck:
     image: yetiplatform/bloomcheck:${YETI_IMAGE_TAG:-latest}
