@@ -25,8 +25,10 @@ services:
     ports:
       - 127.0.0.1:8000:8000
     depends_on:
-      - redis
-      - arangodb
+      redis:
+        condition: service_started
+      arangodb:
+        condition: service_healthy
     volumes:
       - /tmp/docker-yeti-exports:/opt/yeti/exports
       - ./yeti/:/app/
@@ -61,6 +63,12 @@ services:
       - 127.0.0.1:8529:8529
     environment:
       - ARANGO_ROOT_PASSWORD=
+    healthcheck:
+      test: ["CMD-SHELL", "arangosh --server.endpoint tcp://127.0.0.1:8529 --server.username root --server.password \"$$ARANGO_ROOT_PASSWORD\" --javascript.execute-string 'db._version()' >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 5s
+      start_period: 30s
+      retries: 10
 
   # Microservices
 
