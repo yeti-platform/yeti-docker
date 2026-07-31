@@ -87,6 +87,28 @@ about to tag.
   Against a real backend, save/create snackbars are genuinely visible (not
   fast-forwarded like a mock) and also carry the `v-overlay--active` class,
   making that selector ambiguous whenever a toast happens to be up.
+- **Entities/indicators render one `<table>` per type tab, all mounted
+  "eager" (hidden, not destroyed) at once**, unlike Observables' single
+  table. An empty table still renders a "no data" placeholder `<tr>`, so a
+  bare `tbody tr` locator picks up rows from every hidden tab too -- scope
+  to `tbody tr:visible` (see `tests/entity-lifecycle.spec.ts` /
+  `tests/indicator-lifecycle.spec.ts`).
+- **Retrying an entities/indicators search only works if the search box's
+  value actually changes.** Unlike Observables' own search box (which calls
+  `loadObjects()` directly on Enter), EntitySearch/IndicatorSearch only
+  re-query when the underlying Vue ref's *value* changes on `keyup.enter`
+  -- Vue refs are no-ops on an unchanged value, so refilling the same
+  search text on every retry iteration silently never re-fires the
+  request, and the test will hang on whatever the first (possibly stale)
+  response was. `clear()` then `fill()` each retry to force a real change
+  both ways (see the same two specs' search steps).
+- **The v-select used for fields like "Diamond model" (indicators) doesn't
+  reliably `.click()`.** The parent "New X" type-picker menu never actually
+  closes once a type's create dialog opens (both overlays stay active,
+  stacked), so a click at the select's computed coordinates can land on the
+  stale menu layer instead of opening the dropdown. Focus the input and
+  drive it with the keyboard (`ArrowDown`, then click the option by role)
+  instead -- see `tests/indicator-lifecycle.spec.ts`.
 
 ## Adding a spec
 

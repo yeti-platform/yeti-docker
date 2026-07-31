@@ -9,6 +9,12 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   workers: 1,
+  // Real ArangoSearch view consolidation can lag a few seconds behind a
+  // write (see tests/entity-lifecycle.spec.ts and
+  // tests/indicator-lifecycle.spec.ts's search-retry loops), enough to eat
+  // into Playwright's 30s default per-test timeout once the rest of a
+  // lifecycle test's steps are accounted for.
+  timeout: 60_000,
   reporter: "html",
   use: {
     baseURL: process.env.BASE_URL ?? "http://127.0.0.1:18080",
