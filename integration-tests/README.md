@@ -103,12 +103,37 @@ about to tag.
   response was. `clear()` then `fill()` each retry to force a real change
   both ways (see the same two specs' search steps).
 - **The v-select used for fields like "Diamond model" (indicators) doesn't
-  reliably `.click()`.** The parent "New X" type-picker menu never actually
-  closes once a type's create dialog opens (both overlays stay active,
-  stacked), so a click at the select's computed coordinates can land on the
-  stale menu layer instead of opening the dropdown. Focus the input and
-  drive it with the keyboard (`ArrowDown`, then click the option by role)
-  instead -- see `tests/indicator-lifecycle.spec.ts`.
+  reliably `.click()`.** (The original cause -- the parent "New X"
+  type-picker menu never closing once a type's dialog opened -- was fixed
+  in yeti-feeds-frontend#297, but the keyboard approach below is still the
+  more robust way to drive any Vuetify select/autocomplete in this suite.)
+  Focus the input and drive it with the keyboard (`ArrowDown`, then click
+  the option by role) instead -- see `tests/indicator-lifecycle.spec.ts`.
+- **A search result's `role="option"` can be the whole `v-list-item`, not
+  just the item's own name text.** `EntitySelector.vue` (used by the
+  "link objects" dialog) renders each result as a name button *and* a
+  separate "details" button inside one list item that itself carries
+  `role="option"` -- Playwright's accessible-name computation for that
+  option doesn't reliably match on just the visible name (it can silently
+  resolve to zero elements, hanging or clicking nothing). Match by raw text
+  via `page.locator('[role="option"]').filter({ hasText: name })` instead,
+  and click the inner name button specifically, not the option/list-item
+  as a whole -- see `tests/entity-indicator-link.spec.ts`.
+- **Deep-linking to a details-page tab via a URL `#hash` on a fresh page
+  load can land on the wrong tab.** The hash-driven tab-selection watcher
+  can race Vue Router's own initial hash resolution on a cold `page.goto`
+  (confirmed by dumping every tab's active state: the *right* tab's table
+  had the real data, but a *different* tab was the one actually marked
+  active/visible). Navigate without a hash and click the tab instead, like
+  a real user would -- see `tests/entity-indicator-link.spec.ts`.
+- **Neighbor tables (`DirectNeighbors.vue`) are also all mounted "eager"**,
+  one per related-type tab, same as the object-search type tabs. Scope to
+  `.v-window-item--active .v-data-table tbody tr:visible` -- both parts
+  matter: `.v-window-item--active` picks the one real tab out of many
+  identically-structured eager siblings, and `.v-data-table` excludes the
+  object's own "Info" side panel, a plain (non-data-table) `<v-table>`
+  that's always on the page and would otherwise leak its own rows into a
+  bare `tbody tr` match.
 
 ## Adding a spec
 
