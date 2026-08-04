@@ -10,3 +10,7 @@ set -euo pipefail
   printf ' %q' "$@"
   printf '\n'
 } >> "$DOCKER_TEST_LOG"
+
+if [[ "$*" == compose\ run\ --rm\ api\ create-user* ]]; then
+  printf 'synthetic-secret-api-token\n'
+fi

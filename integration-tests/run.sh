@@ -21,7 +21,8 @@ echo "--- Building and starting the integration stack ---"
 docker compose up -d --build --wait
 
 echo "--- Seeding test user ($TEST_USERNAME) ---"
-docker compose run --rm api create-user "$TEST_USERNAME" "$TEST_PASSWORD" --admin
+docker compose run --rm api create-user "$TEST_USERNAME" "$TEST_PASSWORD" --admin > /dev/null
+echo "--- Test user seeded without logging credentials ---"
 
 echo "--- Running Playwright integration suite ---"
 # Run inside the official Playwright image rather than on the host: it ships
