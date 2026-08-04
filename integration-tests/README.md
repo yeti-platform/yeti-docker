@@ -20,8 +20,8 @@ mocked suite is for.
 ./run.sh
 ```
 
-This builds `dev/yeti` and `dev/yeti-feeds-frontend` (as checked out
-locally -- whatever you have checked out is what gets tested), starts a
+This builds the sibling `yeti` and `yeti-feeds-frontend` repositories (whatever
+you have checked out locally is what gets tested), starts a
 fresh stack, seeds a test admin user, runs the suite, and tears everything
 down again regardless of outcome. Override the seeded credentials or target
 URL via env vars if needed:
