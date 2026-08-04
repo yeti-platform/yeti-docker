@@ -30,6 +30,7 @@ test("create, search, tag, and delete an observable", async ({ page }) => {
   await expect(page).toHaveURL(/\/observables\/[\w-]+$/);
   await expect(page.locator(".observable-value")).toHaveText(hostname);
   const observableId = new URL(page.url()).pathname.split("/").pop();
+  const observableDetailsPath = `/observables/${observableId}`;
 
   // --- Tag ---
   const tagBox = page.locator(".v-combobox input").first();
@@ -44,16 +45,21 @@ test("create, search, tag, and delete an observable", async ({ page }) => {
   // itself, not just the assertion, until the view has caught up.
   await page.goto("/observables");
   const searchInput = page.getByRole("textbox", { name: /Search observables/ });
+  const matchingObservableLink = page.getByRole("link", { name: hostname, exact: true });
   await expect(async () => {
     await searchInput.fill(hostname);
     await searchInput.press("Enter");
     await expect(page.locator("tbody tr")).toHaveCount(1);
     await expect(page.locator("tbody tr").first()).toContainText("integration-test-tag");
+    await expect(matchingObservableLink).toBeVisible();
+    await expect(matchingObservableLink).toHaveAttribute("href", observableDetailsPath);
   }).toPass({ timeout: 10_000 });
-  await expect(page.locator("tbody tr").first()).toContainText(hostname);
 
   // --- Delete ---
-  await page.locator("tbody tr").first().getByRole("link", { name: hostname }).click();
+  // A pending search refresh can replace the verified row between the retry
+  // completing and a click, detaching the link. Navigate to the exact href
+  // verified above, then keep the destructive action itself in the UI.
+  await page.goto(observableDetailsPath);
   await expect(page).toHaveURL(/\/observables\/[\w-]+$/);
   await page.getByRole("button", { name: "Edit" }).click();
 
