@@ -118,14 +118,13 @@ about to tag.
   the option by role) instead -- see `tests/indicator-lifecycle.spec.ts`.
 - **A search result's `role="option"` can be the whole `v-list-item`, not
   just the item's own name text.** `EntitySelector.vue` (used by the
-  "link objects" dialog) renders each result as a name button *and* a
-  separate "details" button inside one list item that itself carries
-  `role="option"` -- Playwright's accessible-name computation for that
-  option doesn't reliably match on just the visible name (it can silently
-  resolve to zero elements, hanging or clicking nothing). Match by raw text
-  via `page.locator('[role="option"]').filter({ hasText: name })` instead,
-  and click the inner name button specifically, not the option/list-item
-  as a whole -- see `tests/entity-indicator-link.spec.ts`.
+  "link objects" dialog) binds the Vuetify selection props to that list item
+  and renders only a separate "details" button inside it. Playwright's
+  accessible-name computation for the option can include the details link,
+  so match by raw text via
+  `page.locator('[role="option"]').filter({ hasText: name })` and click the
+  option itself. The nested details button deliberately stops propagation and
+  does not select the result -- see `tests/entity-indicator-link.spec.ts`.
 - **Deep-linking to a details-page tab via a URL `#hash` on a fresh page
   load can land on the wrong tab.** The hash-driven tab-selection watcher
   can race Vue Router's own initial hash resolution on a cold `page.goto`

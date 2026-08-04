@@ -56,13 +56,11 @@ test("link an entity and an indicator, and confirm they appear in each other's n
   await expect(linkDialog.getByText(`New link for ${entityName}`)).toBeVisible();
   const linkTargetSearch = linkDialog.getByRole("combobox", { name: "Search for entities or indicators" });
   const saveLinkButton = linkDialog.getByRole("button", { name: "Save" });
-  // Each search result is a v-list-item carrying role="option" itself, but
-  // wrapping *two* buttons (the item's own name, and a separate "details"
-  // link) -- Playwright's accessible-name computation for that option
-  // doesn't reliably match on just the item's name text (it can silently
-  // resolve to zero elements). Match by raw text via the [role="option"]
-  // attribute selector instead, and click the inner name button
-  // specifically, not the option/list-item wrapper as a whole.
+  // Each search result is a v-list-item carrying both role="option" and the
+  // Vuetify selection props. Its only nested button is the separate "details"
+  // link, which deliberately stops click propagation. Playwright's accessible
+  // name for the option can include that link, so match by raw text via the
+  // [role="option"] selector and click the option itself to select it.
   //
   // The autocomplete's own /entities, /indicators, /dfiq searches go
   // through the same eventually-consistent ArangoSearch views as
@@ -72,7 +70,7 @@ test("link an entity and an indicator, and confirm they appear in each other's n
     await linkTargetSearch.fill(indicatorName);
     const option = page.locator('[role="option"]').filter({ hasText: indicatorName });
     await expect(option).toBeVisible();
-    await option.getByRole("button").first().click();
+    await option.click();
     await expect(saveLinkButton).toBeEnabled();
   }).toPass({ timeout: 20_000 });
 
