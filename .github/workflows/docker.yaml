@@ -26,8 +26,10 @@ jobs:
           printf 'YETI_AUTH_SECRET_KEY=%s\n' "$(openssl rand -hex 64)" >> prod/.env
       - name: Pull docker images from DockerHub
         run: docker compose --env-file prod/.env -f prod/docker-compose.yaml up -d --wait --quiet-pull
-      - name: Test access to the web UI
-        run: curl --fail --show-error --silent --retry 10 --retry-delay 6 --retry-connrefused http://localhost/ > /dev/null
+      - name: Test access to the web UI and proxied API
+        run: |
+          curl --fail --show-error --silent --retry 10 --retry-delay 6 --retry-connrefused http://localhost/ > /dev/null
+          curl --fail --show-error --silent --retry 10 --retry-delay 6 --retry-connrefused http://localhost/openapi.json > /dev/null
       - name: Tear down the test stack
         if: always()
         run: docker compose --env-file prod/.env -f prod/docker-compose.yaml down --volumes
