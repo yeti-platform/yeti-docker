@@ -2,7 +2,7 @@
 
 Runs Playwright against a real Yeti stack -- real ArangoDB, real API, real
 frontend, no mocked network requests -- unlike the frontend's own e2e suite
-(`dev/yeti-feeds-frontend/tests/e2e`), which deliberately mocks every
+(`../../yeti-feeds-frontend/tests/e2e`), which deliberately mocks every
 `/api/v2/**` call and never starts a backend at all. This suite exists to
 catch the class of bug that suite structurally can't: real backend bugs,
 real auth flows, real timing/consistency issues across the stack.
