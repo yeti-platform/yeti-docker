@@ -90,6 +90,11 @@ about to tag.
   past what's reasonable to poll for (observed >15s vs ~1-2s for an
   untagged object) -- verify deletion via a direct API call instead of the
   search view in that case (see the same spec's final step).
+- **A successful observable search assertion does not make its row stable.**
+  A pending refresh can replace the table immediately afterward and detach a
+  link before Playwright clicks it. Verify the named link and its exact details
+  `href` inside the retry, then navigate to that verified path before continuing
+  with user-level edit/delete actions (see `tests/observable-lifecycle.spec.ts`).
 - **`getByRole("dialog")`, not `.v-overlay--active`**, to target a dialog.
   Against a real backend, save/create snackbars are genuinely visible (not
   fast-forwarded like a mock) and also carry the `v-overlay--active` class,
@@ -100,15 +105,14 @@ about to tag.
   bare `tbody tr` locator picks up rows from every hidden tab too -- scope
   to `tbody tr:visible` (see `tests/entity-lifecycle.spec.ts` /
   `tests/indicator-lifecycle.spec.ts`).
-- **Retrying an entities/indicators search only works if the search box's
-  value actually changes.** Unlike Observables' own search box (which calls
-  `loadObjects()` directly on Enter), EntitySearch/IndicatorSearch only
-  re-query when the underlying Vue ref's *value* changes on `keyup.enter`
-  -- Vue refs are no-ops on an unchanged value, so refilling the same
-  search text on every retry iteration silently never re-fires the
-  request, and the test will hang on whatever the first (possibly stale)
-  response was. `clear()` then `fill()` each retry to force a real change
-  both ways (see the same two specs' search steps).
+- **Retrying entity/indicator searches only works if the search value actually
+  changes.** Unlike Observables' search box (which calls `loadObjects()` on
+  Enter), the entity/indicator pages and `EntitySelector` autocomplete depend
+  on a changed Vue ref before issuing another request. Vue drops a same-value
+  assignment as a no-op, so refilling identical text can leave the first stale
+  result in place indefinitely. `clear()` then `fill()` on every retry (and
+  press Enter for the page-level search boxes) to force a new request; see the
+  entity, indicator, and entity-indicator-link specs.
 - **The v-select used for fields like "Diamond model" (indicators) doesn't
   reliably `.click()`.** (The original cause -- the parent "New X"
   type-picker menu never closing once a type's dialog opened -- was fixed

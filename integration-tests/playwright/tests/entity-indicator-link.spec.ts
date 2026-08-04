@@ -64,9 +64,11 @@ test("link an entity and an indicator, and confirm they appear in each other's n
   //
   // The autocomplete's own /entities, /indicators, /dfiq searches go
   // through the same eventually-consistent ArangoSearch views as
-  // everywhere else -- retry until the freshly-created indicator actually
-  // shows up and the click sticks (Save reports the target as picked).
+  // everywhere else. Clear before every fill so Vue observes a real search
+  // value change on each retry; filling the same value again is a no-op and
+  // would leave the first stale response in place indefinitely.
   await expect(async () => {
+    await linkTargetSearch.clear();
     await linkTargetSearch.fill(indicatorName);
     const option = page.locator('[role="option"]').filter({ hasText: indicatorName });
     await expect(option).toBeVisible();
