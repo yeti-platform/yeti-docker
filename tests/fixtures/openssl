@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ "$*" != "rand -hex 64" ]]; then
+  printf 'unexpected openssl invocation: %s\n' "$*" >&2
+  exit 1
+fi
+
+printf '%0128d\n' 0

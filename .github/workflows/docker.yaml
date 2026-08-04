@@ -9,15 +9,20 @@ on:
   schedule:
     - cron: "0 0 * * 6"
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Check out yeti-docker
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
       - name: Create CI environment from safe defaults
         run: |
-          cp prod/.env.example prod/.env
+          install -m 600 prod/.env.example prod/.env
           printf 'YETI_AUTH_SECRET_KEY=%s\n' "$(openssl rand -hex 64)" >> prod/.env
       - name: Pull docker images from DockerHub
         run: docker compose --env-file prod/.env -f prod/docker-compose.yaml up -d --wait --quiet-pull
