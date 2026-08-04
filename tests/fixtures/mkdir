@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Production bootstrap creates a host directory after preparing the environment.
+# The contract test only exercises environment handling, so keep that side effect local.
+exit 0

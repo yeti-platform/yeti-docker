@@ -5,8 +5,9 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$script_dir"
 
 if [[ ! -f .env ]]; then
-  cp .env.example .env
+  (umask 077 && cp .env.example .env)
 fi
+chmod 600 .env
 
 if ! grep -q '^YETI_AUTH_SECRET_KEY=' .env; then
   secret_key="$(openssl rand -hex 64)"
