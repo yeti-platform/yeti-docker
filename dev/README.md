@@ -1,6 +1,10 @@
 # Yeti Dev docker images
 
-Clone this repo, then run `./init.sh`. You might need some additional steps:
+Clone this repository next to `yeti` and `yeti-feeds-frontend`, then run
+`./init.sh`. The script clones either missing sibling and starts the core
+development stack. AI services are optional; if a sibling `yeti-agents`
+checkout is configured, start them with
+`YETI_AGENTS_ENABLED=True docker compose --profile agents up`.
 
 ## `api` container
 
@@ -16,14 +20,14 @@ Then once you get a root shell in the docker container (prompt like
 `root@dcaa45f226bc:/app#`)
 
 ```bash
-poetry run uvicorn core.web.webapp:app --reload --host 0.0.0.0
+uv run uvicorn core.web.webapp:app --reload --host 0.0.0.0
 ```
 
 NOTE: You can, of course, run all these commands directly into the `docker exec`
 command:
 
 ```bash
-docker compose exec api poetry run uvicorn core.web.webapp:app --reload --host 0.0.0.0
+docker compose exec api uv run uvicorn core.web.webapp:app --reload --host 0.0.0.0
 ```
 
 This will work for all the other commands in this doc.
@@ -35,7 +39,7 @@ need to run the following command from the `api` container (prompt like
 `root@772ea966d9a8:/app#`)
 
 ```bash
-poetry run celery -A core.taskscheduler worker --loglevel=INFO
+uv run celery -A core.taskscheduler worker --loglevel=INFO
 ```
 
 ### Events tasks
@@ -45,7 +49,7 @@ consumers. To do so, you need to run the following command from the `api`
 container (prompt like `root@772ea966d9a8:/app#`).
 
 ```bash
-poetry run python -m core.events.consumers events
+uv run python -m core.events.consumers events
 ```
 
 You can adjust concurrency with `--concurrency <number_of_worker>` and enable

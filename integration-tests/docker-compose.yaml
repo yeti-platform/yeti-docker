@@ -17,7 +17,7 @@ services:
 
   api:
     build:
-      context: ../dev/yeti
+      context: ../../yeti
       dockerfile: ./extras/docker/Dockerfile
     command: ["webserver-prod"]
     environment:
@@ -45,7 +45,7 @@ services:
 
   frontend:
     build:
-      context: ../dev/yeti-feeds-frontend
+      context: ../../yeti-feeds-frontend
       dockerfile: ./docker/prod/Dockerfile
     volumes:
       - ./frontend-nginx.conf:/etc/nginx/conf.d/default.conf
