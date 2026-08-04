@@ -20,6 +20,7 @@ Git links under `dev`.
 - Render development configuration: `docker compose -f dev/docker-compose.yaml config`
 - Start development services: `docker compose -f dev/docker-compose.yaml up`
 - Render integration configuration: `docker compose -f integration-tests/docker-compose.yaml config`
+- Validate the integration port contract: `./tests/integration-port-contract.sh`
 - Run the disposable real-stack suite: `(cd integration-tests && ./run.sh)`
 
 The integration runner builds the sibling source checkouts, creates synthetic

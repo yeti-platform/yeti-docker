@@ -8,7 +8,8 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 
 export TEST_USERNAME="${TEST_USERNAME:-integration-test}"
 export TEST_PASSWORD="${TEST_PASSWORD:-Integration-Test-Password-1!}"
-export BASE_URL="${BASE_URL:-http://127.0.0.1:18080}"
+export INTEGRATION_FRONTEND_PORT="${INTEGRATION_FRONTEND_PORT:-18080}"
+export BASE_URL="${BASE_URL:-http://127.0.0.1:${INTEGRATION_FRONTEND_PORT}}"
 
 cleanup() {
   echo "--- Tearing down integration stack ---"
