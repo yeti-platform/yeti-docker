@@ -15,11 +15,18 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Check out yeti-docker
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           persist-credentials: false
+      - name: Validate shell and Compose contracts
+        run: |
+          bash -n dev/init.sh prod/init.sh integration-tests/run.sh tests/*.sh tests/fixtures/*
+          shellcheck dev/init.sh prod/init.sh integration-tests/run.sh tests/*.sh tests/fixtures/*
+          ./tests/integration-port-contract.sh
+          ./tests/production-env-contract.sh
       - name: Create CI environment from safe defaults
         run: |
           install -m 600 prod/.env.example prod/.env
