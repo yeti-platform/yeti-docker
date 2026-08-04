@@ -25,6 +25,7 @@ assert_rendered_port "$override_config" 18081
 test_tmp_dir="$(mktemp -d "${TMPDIR:-/tmp}/yeti-integration-port.XXXXXX")"
 trap 'rm -r "$test_tmp_dir"' EXIT
 docker_test_log="$test_tmp_dir/docker.log"
+harness_output="$test_tmp_dir/harness.out"
 
 assert_harness_environment() {
   local expected_port=$1
@@ -36,10 +37,15 @@ assert_harness_environment() {
     PATH="$fixture_dir:$PATH" \
     DOCKER_TEST_LOG="$docker_test_log" \
     "$@" \
-    "$run_script" > /dev/null
+    "$run_script" > "$harness_output"
 
   grep -Fxq "INTEGRATION_FRONTEND_PORT=$expected_port" "$docker_test_log"
   grep -Fxq "BASE_URL=$expected_base_url" "$docker_test_log"
+  if grep -Fq 'synthetic-secret-api-token' "$harness_output"; then
+    printf 'create-user output leaked into integration logs\n' >&2
+    exit 1
+  fi
+  grep -Fxq -- '--- Test user seeded without logging credentials ---' "$harness_output"
 }
 
 assert_harness_environment 18080 http://127.0.0.1:18080
