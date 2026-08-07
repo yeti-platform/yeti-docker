@@ -144,6 +144,26 @@ about to tag.
   object's own "Info" side panel, a plain (non-data-table) `<v-table>`
   that's always on the page and would otherwise leak its own rows into a
   bare `tbody tr` match.
+- **DFIQ objects (Scenario/Facet/Question) go through a completely
+  different create/edit dialog** (`EditDFIQObject.vue`, YAML-backed) than
+  everything else (`NewObject.vue`). Typed field values flow into an
+  in-memory YAML document that's re-validated against
+  `/api/v2/dfiq/validate` on a 500ms debounce, and Save stays disabled
+  until that comes back valid -- wait for Save to become enabled with a
+  generous timeout (e.g. 10s) rather than assuming it's immediate, see
+  `tests/dfiq-scenario.spec.ts`.
+- **The DFIQ tree's "new facet"/"new question" buttons on each node are
+  hidden until that row is hovered** (a real CSS `:hover` reveal, not a
+  click-to-expand toggle) -- `.hover()` the row before trying to click one,
+  see `tests/dfiq-scenario-inline-question.spec.ts`.
+- **The "Parents" field on a Question/Facet loads its options once, when
+  the dialog mounts** (`EditDFIQObject.vue`'s `loadPossibleParents()`),
+  not per keystroke like other search boxes in this app -- so there's a
+  real ArangoSearch-view consistency window if you just created the
+  parent scenario/facet moments earlier, and re-typing in the field won't
+  help (the underlying fetch never re-runs). Poll the search API directly
+  before opening the dialog instead of retrying inside it, see
+  `tests/dfiq-question-multiple-parents.spec.ts`.
 
 ## Adding a spec
 
