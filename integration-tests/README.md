@@ -134,6 +134,17 @@ about to tag.
   object's own "Info" side panel, a plain (non-data-table) `<v-table>`
   that's always on the page and would otherwise leak its own rows into a
   bare `tbody tr` match.
+- **Nested dialogs opened from within another dialog (e.g. "New Indicator"
+  inside the link-objects dialog) teleport their content to the shared
+  overlay root, not nested under their logical parent's DOM subtree.**
+  Locators scoped to the parent dialog (e.g. `linkDialog.getByRole(...)`)
+  silently find nothing for the *child* dialog's own content -- query it
+  unscoped instead, using `page.getByRole("dialog").last()` to pick the
+  most-recently-opened one. Also pin the *parent* dialog locator itself to
+  `.first()` once a nested dialog can open inside it, so later lookups on
+  the parent stay unambiguous regardless of whether the child dialog's
+  close transition has fully finished (`getByRole("dialog")` alone can
+  briefly match both) -- see `tests/entity-indicator-create-link.spec.ts`.
 - **DFIQ objects (Scenario/Facet/Question) go through a completely
   different create/edit dialog** (`EditDFIQObject.vue`, YAML-backed) than
   everything else (`NewObject.vue`). Typed field values flow into an
