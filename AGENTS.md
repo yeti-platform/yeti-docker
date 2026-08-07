@@ -1,7 +1,8 @@
 # Docker and integration agent instructions
 
-These instructions extend the workspace-level `../AGENTS.md` for the
-`yeti-docker` repository.
+These instructions are self-contained for a standalone `yeti-docker` checkout.
+When the repository is part of the optional sibling Yeti workspace and
+`../AGENTS.md` exists, follow it as well for cross-repository coordination.
 
 ## Project map
 
