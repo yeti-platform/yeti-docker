@@ -62,7 +62,16 @@ test("create, search, tag, and delete an observable", async ({ page }) => {
 
   const confirmDialog = page.getByRole("dialog").last();
   await expect(confirmDialog.getByText("Are you sure you want to delete this item?")).toBeVisible();
+  // Wait for the actual DELETE to land before checking below -- a bare
+  // .click() only waits for the click event to dispatch, not for the
+  // resulting request/response, so the immediate follow-up GET can race
+  // ahead of it under load: fine on a quiet run, but flips consistently
+  // once enough other specs have run before it in the same worker.
+  const deleteResponse = page.waitForResponse(
+    res => res.url().includes(`/observables/${observableId}`) && res.request().method() === "DELETE"
+  );
   await confirmDialog.getByRole("button", { name: "Delete", exact: true }).click();
+  await deleteResponse;
 
   // --- Confirm gone ---
   // Query the API directly rather than the search view: tagging appears to

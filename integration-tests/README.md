@@ -165,6 +165,25 @@ about to tag.
   help (the underlying fetch never re-runs). Poll the search API directly
   before opening the dialog instead of retrying inside it, see
   `tests/dfiq-question-multiple-parents.spec.ts`.
+- **A bare `.click()` on a "Delete" confirm button doesn't wait for the
+  DELETE request it triggers**, only for the click event to dispatch. An
+  immediate follow-up API check (the pattern every lifecycle spec uses to
+  confirm deletion) can race ahead of that in-flight request and see a
+  stale 200 instead of 404 -- rare on a quiet run, but consistently
+  reproducible once several other specs have already run in the same
+  worker and pushed request latency up. `page.waitForResponse(...)`
+  around the click, same as the tag-step pattern already used elsewhere,
+  fixes it -- see any of the `*-lifecycle.spec.ts` files or
+  `tests/dfiq-scenario.spec.ts`.
+- **The same eventual-consistency gotcha applies to a spec's own cleanup
+  step, not just its assertions.** A cleanup block that searches for an
+  object it just created (rather than using an ID it already has) can hit
+  the same ArangoSearch-view lag and silently find zero matches -- the
+  loop over an empty array just does nothing, so the object leaks instead
+  of the test failing loudly. Retry the search until it returns a match
+  (`expect(...).toPass(...)`, same as the pre-flight check above) rather
+  than searching once -- see `tests/dfiq-facet.spec.ts` and
+  `tests/dfiq-scenario-inline-question.spec.ts`.
 
 ## Adding a spec
 
