@@ -55,11 +55,20 @@ test("create a scenario, then add a question inline from its DFIQ tree", async (
     form: { username: TEST_USERNAME, password: TEST_PASSWORD }
   });
   const { access_token: accessToken } = await tokenResponse.json();
-  const searchResponse = await page.request.post("/api/v2/dfiq/search", {
-    headers: { Authorization: `Bearer ${accessToken}` },
-    data: { query: { name: questionName }, count: 10, page: 0, sorting: [] }
-  });
-  const { dfiq: questionMatches } = await searchResponse.json();
+  // The question was created moments ago -- the ArangoSearch view backing
+  // /dfiq/search is eventually consistent (same gotcha as elsewhere in
+  // this suite), so a single one-shot search can miss it here and
+  // silently skip its deletion rather than fail loudly. Retry until it
+  // shows up.
+  let questionMatches: { id: string }[] = [];
+  await expect(async () => {
+    const searchResponse = await page.request.post("/api/v2/dfiq/search", {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      data: { query: { name: questionName }, count: 10, page: 0, sorting: [] }
+    });
+    ({ dfiq: questionMatches } = await searchResponse.json());
+    expect(questionMatches.length).toBeGreaterThan(0);
+  }).toPass({ timeout: 20_000 });
   for (const match of questionMatches) {
     await page.request.delete(`/api/v2/dfiq/${match.id}`, { headers: { Authorization: `Bearer ${accessToken}` } });
   }

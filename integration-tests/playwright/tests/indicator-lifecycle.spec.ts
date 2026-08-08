@@ -93,7 +93,16 @@ test("create, search, tag, and delete an indicator", async ({ page }) => {
 
   const confirmDialog = page.getByRole("dialog").last();
   await expect(confirmDialog.getByText("Are you sure you want to delete this item?")).toBeVisible();
+  // Wait for the actual DELETE to land before checking below -- a bare
+  // .click() only waits for the click event to dispatch, not for the
+  // resulting request/response, so the immediate follow-up GET can race
+  // ahead of it under load (see observable-lifecycle.spec.ts for the same
+  // fix and more detail).
+  const deleteResponse = page.waitForResponse(
+    res => res.url().includes(`/indicators/${indicatorId}`) && res.request().method() === "DELETE"
+  );
   await confirmDialog.getByRole("button", { name: "Delete", exact: true }).click();
+  await deleteResponse;
 
   // --- Confirm gone ---
   // Direct API GET, not the search view -- deleting a tagged object pushes
