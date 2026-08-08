@@ -184,6 +184,34 @@ about to tag.
   (`expect(...).toPass(...)`, same as the pre-flight check above) rather
   than searching once -- see `tests/dfiq-facet.spec.ts` and
   `tests/dfiq-scenario-inline-question.spec.ts`.
+- **`getByLabel(X)` can fuzzy-match a field's own clear/show-password
+  append icon, not just the field itself.** Vuetify auto-generates an
+  `aria-label="X appended action"` for any `@click:append` icon (the
+  clear button on "Reference"/"Step name", the eye icon on "Password",
+  ...), and that contains the field's label as a substring, so
+  `getByLabel` resolves to both and throws a strict-mode violation.
+  Use `getByRole("textbox", { name: X })` instead, which only matches the
+  actual input/textarea -- see `tests/rbac-group-membership.spec.ts` or
+  `tests/dfiq-question-approaches.spec.ts`.
+- **A `v-combobox`/`v-select`'s dropdown menu teleports to the shared
+  overlay root, same as a nested dialog's content (see the gotcha above
+  about `v-window-item--active`/neighbor tables for the general pattern)
+  -- it is not nested under its logical container in the real DOM**, only
+  in the accessibility-tree snapshot Playwright's error output shows,
+  which can be misleading. A locator scoped to the container (e.g. a
+  dialog) silently finds nothing for `role="option"`; query it unscoped
+  via `page.getByRole("option", ...)` instead -- see
+  `tests/rbac-group-membership.spec.ts`.
+- **A multi-select `v-combobox`'s dropdown doesn't close itself after
+  picking one option** (more could still be picked), so it can sit on top
+  of and intercept clicks on whatever's below it until explicitly
+  dismissed (e.g. `page.keyboard.press("Escape")`) -- see
+  `tests/rbac-group-membership.spec.ts`.
+- **The "v-select doesn't reliably `.click()`" gotcha above isn't
+  specific to "Diamond model"** -- it applies to Vuetify `v-select`s
+  generally in this suite (confirmed again on ACLEdit's "Role" field):
+  focus + keyboard (`ArrowDown`, then click the option by role), not
+  `.click()`.
 
 ## Adding a spec
 
