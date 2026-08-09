@@ -85,13 +85,13 @@ services:
       retries: 10
 
   bloomcheck:
-    image: yetiplatform/bloomcheck:${YETI_IMAGE_TAG:-latest}
+    image: yetiplatform/bloomcheck:dev
     entrypoint: ['/app/bloomcheck', '-serve', '/bloomfilters']
     volumes:
       - ${YETI_BLOOM_FILTERS_DIR}:/bloomfilters:ro
 
   agents:
-    image: yetiplatform/yeti-agents:${YETI_IMAGE_TAG:-latest}
+    image: yetiplatform/yeti-agents:dev
     env_file:
       - ${YETI_DOCKER_ENVFILE}
     environment:
