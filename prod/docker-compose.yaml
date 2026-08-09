@@ -84,6 +84,10 @@ services:
       start_period: 30s
       retries: 10
 
+  # bloomcheck/agents only ever publish a :dev tag today (no :latest, no
+  # numbered releases) -- pinned here independent of YETI_IMAGE_TAG so
+  # bumping that for a yeti/yeti-frontend release doesn't break these pulls.
+  # Move to a numbered tag or :latest once these images stabilize.
   bloomcheck:
     image: yetiplatform/bloomcheck:dev
     entrypoint: ['/app/bloomcheck', '-serve', '/bloomfilters']
