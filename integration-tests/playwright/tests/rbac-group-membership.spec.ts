@@ -6,11 +6,12 @@ import { login, TEST_PASSWORD, TEST_USERNAME } from "./helpers";
  * a whole feature area, and the frontend already carries a known workaround
  * for a backend/OpenAPI schema mismatch on the `Permission` IntFlag (see
  * services/rbac.ts and services/users.ts) -- this exercises exactly that
- * code path. Creates a user and a group through the admin UI, grants the
- * user a Writer role on the group via ACLEdit, and confirms it both in the
- * UI and via a direct API check of the persisted ACL edge.
+ * code path. Creates a user and a group through the admin UI, then grants
+ * the user each of the three roles ACLEdit's UI actually offers (Reader,
+ * Writer, Owner), confirming both in the UI and via a direct API check of
+ * the persisted ACL edge's exact role value each time.
  */
-test("create a user and a group, then grant the user a Writer role on the group", async ({ page }) => {
+test("create a user and a group, then grant the user every ACL role the UI offers", async ({ page }) => {
   const username = `integration-test-user-${Date.now()}`;
   const password = "Integration-Test-Password-1!";
   const groupName = `integration-test-group-${Date.now()}`;
@@ -20,9 +21,6 @@ test("create a user and a group, then grant the user a Writer role on the group"
   // --- Create a user ---
   await page.goto("/system/users");
   await page.getByLabel("Username").fill(username);
-  // getByLabel("Password") also fuzzy-matches the show/hide-password
-  // append icon's own "Password appended action" aria-label -- scope to
-  // the actual input via role, same fix as elsewhere in this suite.
   await page.getByRole("textbox", { name: "Password" }).fill(password);
   await page.getByRole("button", { name: "Add user" }).click();
   await expect(page.getByRole("link", { name: username })).toBeVisible();
@@ -39,40 +37,6 @@ test("create a user and a group, then grant the user a Writer role on the group"
   const groupRow = page.locator("tbody tr").filter({ hasText: groupName });
   await expect(groupRow).toBeVisible();
 
-  // --- Grant the user a Writer role on the group, via ACLEdit ---
-  await groupRow.locator("button", { has: page.locator(".mdi-account-multiple-plus-outline") }).click();
-  const aclDialog = page.getByRole("dialog");
-  await expect(aclDialog.getByText(`ACL for`)).toBeVisible();
-
-  const identitiesField = aclDialog.getByLabel("Select identities");
-  await identitiesField.fill(username);
-  // The combobox's dropdown menu teleports to the shared overlay root, not
-  // nested under the dialog's own DOM subtree -- same underlying Vuetify
-  // behavior as the nested-dialog gotcha documented in the README, just
-  // for a combobox menu instead. Query unscoped.
-  await page.getByRole("option", { name: username }).click();
-  // The identities combobox is multi-select, so picking an option doesn't
-  // close its dropdown (more could be picked) -- close it, or it sits on
-  // top of the Role select below.
-  await page.keyboard.press("Escape");
-
-  // The Role v-select doesn't reliably respond to .click() (see
-  // tests/indicator-lifecycle.spec.ts / the README) -- focus and drive it
-  // with the keyboard instead.
-  await aclDialog.getByLabel("Role").focus();
-  await page.keyboard.press("ArrowDown");
-  await page.getByRole("option", { name: "Writer" }).click();
-
-  const updateResponse = page.waitForResponse(
-    res => res.url().includes("/update-members") && res.request().method() === "POST"
-  );
-  await aclDialog.getByRole("button", { name: "Update memberships" }).click();
-  await updateResponse;
-
-  await expect(aclDialog.locator("tbody tr").filter({ hasText: username })).toContainText("Writer");
-  await aclDialog.getByRole("button", { name: "Close" }).click();
-
-  // --- Confirm it persisted server-side, as the exact IntFlag value (3) ---
   const tokenResponse = await page.request.post("/api/v2/auth/token", {
     form: { username: TEST_USERNAME, password: TEST_PASSWORD }
   });
@@ -81,17 +45,56 @@ test("create a user and a group, then grant the user a Writer role on the group"
     headers: { Authorization: `Bearer ${accessToken}` },
     data: { name: groupName }
   });
-  const { groups } = await groupsResponse.json();
-  expect(groups).toHaveLength(1);
-  const groupId = groups[0].id;
+  const groupId = (await groupsResponse.json()).groups[0].id;
 
-  const aclResponse = await page.request.get(`/api/v2/rbac/rbacgroup/${groupId}`, {
-    headers: { Authorization: `Bearer ${accessToken}` }
-  });
-  const acls: Record<string, { role: number }> = (await aclResponse.json()).acls;
-  const membership = Object.entries(acls).find(([name]) => name === username);
-  expect(membership).toBeDefined();
-  expect(membership?.[1].role).toBe(3);
+  // Every ACL role ACLEdit's own UI offers ("No access" isn't one of them --
+  // that's only reachable through a user's global role, covered separately
+  // in user-global-role.spec.ts), each with its exact expected IntFlag value.
+  const rolesUnderTest: Array<[label: string, value: number]> = [
+    ["Reader", 1],
+    ["Writer", 3],
+    ["Owner", 7]
+  ];
+
+  for (const [roleLabel, roleValue] of rolesUnderTest) {
+    // Reopen fresh each iteration rather than relying on the dialog staying
+    // open across iterations -- dismissing the identities combobox's own
+    // dropdown (below) can close the whole ACLEdit dialog with it, since
+    // Escape isn't guaranteed to only close the topmost nested overlay.
+    await groupRow.locator("button", { has: page.locator(".mdi-account-multiple-plus-outline") }).click();
+    const aclDialog = page.getByRole("dialog");
+    await expect(aclDialog.getByText(`ACL for`)).toBeVisible();
+
+    const identitiesField = aclDialog.getByLabel("Select identities");
+    await identitiesField.fill(username);
+    // The combobox's dropdown menu teleports to the shared overlay root, not
+    // nested under the dialog's own DOM subtree -- query unscoped.
+    await page.getByRole("option", { name: username }).click();
+    // Multi-select combobox: picking an option doesn't close its dropdown.
+    await page.keyboard.press("Escape");
+
+    // The Role v-select doesn't reliably respond to .click() -- focus and
+    // drive it with the keyboard instead.
+    await aclDialog.getByLabel("Role").focus();
+    await page.keyboard.press("ArrowDown");
+    await page.getByRole("option", { name: roleLabel, exact: true }).click();
+
+    const updateResponse = page.waitForResponse(
+      res => res.url().includes("/update-members") && res.request().method() === "POST"
+    );
+    await aclDialog.getByRole("button", { name: "Update memberships" }).click();
+    await updateResponse;
+
+    await expect(aclDialog.locator("tbody tr").filter({ hasText: username })).toContainText(roleLabel);
+
+    const aclResponse = await page.request.get(`/api/v2/rbac/rbacgroup/${groupId}`, {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    const acls: Record<string, { role: number }> = (await aclResponse.json()).acls;
+    expect(acls[username]?.role).toBe(roleValue);
+
+    await aclDialog.getByRole("button", { name: "Close" }).click();
+  }
 
   // --- Cleanup ---
   await page.request.delete(`/api/v2/groups/${groupId}`, { headers: { Authorization: `Bearer ${accessToken}` } });
