@@ -34,6 +34,7 @@ services:
       - YETI_AUTH_ACCESS_TOKEN_EXPIRE_MINUTES=30
       - YETI_AUTH_BROWSER_TOKEN_EXPIRE_MINUTES=43200
       - YETI_AUTH_ENABLED=True
+      - YETI_RBAC_ENABLED=True
       - YETI_SYSTEM_PLUGINS_PATH=./plugins
     depends_on:
       redis:
