@@ -16,8 +16,9 @@ services:
       - YETI_AUTH_BROWSER_TOKEN_EXPIRE_MINUTES=43200
       - YETI_AUTH_ENABLED=False
       - YETI_SYSTEM_PLUGINS_PATH=./plugins
+      - YETI_AGENTS_ENABLED=${YETI_AGENTS_ENABLED:-False}
     build:
-      context: ./yeti/
+      context: ../../yeti/
       dockerfile: ./extras/docker/dev/Dockerfile
     image: yeti
     entrypoint: ["/bin/bash", "/docker-entrypoint.sh"]
@@ -31,20 +32,20 @@ services:
         condition: service_healthy
     volumes:
       - /tmp/docker-yeti-exports:/opt/yeti/exports
-      - ./yeti/:/app/
+      - ../../yeti/:/app/
     stdin_open: true # docker run -i
     tty: true        # docker run -t
 
   frontend:
     build:
-      context: ./yeti-feeds-frontend/
+      context: ../../yeti-feeds-frontend/
       dockerfile: ./docker/dev/Dockerfile
     image: yeti-feeds-frontend
     ports:
       - 127.0.0.1:8080:8080
       - 127.0.0.1:3000:3000
     volumes:
-      - ./yeti-feeds-frontend/:/app
+      - ../../yeti-feeds-frontend/:/app
     entrypoint:
       - /docker-entrypoint.sh
     command:
@@ -80,20 +81,22 @@ services:
       - /tmp/bloomfilters:/bloomfilters:ro
 
   agents:
+    profiles: ["agents"]
     container_name: agents
     build:
-      context: ./yeti-agents/
+      context: ../../yeti-agents/
     image: yetiplatform/yeti-agents:dev
     ports:
       - 127.0.0.1:8888:8888
     env_file:
-      - ./yeti-agents/.env
+      - ../../yeti-agents/.env
     volumes:
-      - ./yeti-agents/:/app
+      - ../../yeti-agents/:/app
     entrypoint: [ "/bin/bash", "/app/entrypoint.sh" ]
     command: [ "manual" ]
 
   ollama:
+    profiles: ["agents"]
     container_name: ollama
     image: ollama/ollama:latest
     ports:

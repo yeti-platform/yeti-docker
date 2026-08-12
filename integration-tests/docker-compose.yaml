@@ -17,7 +17,7 @@ services:
 
   api:
     build:
-      context: ../dev/yeti
+      context: ../../yeti
       dockerfile: ./extras/docker/Dockerfile
     command: ["webserver-prod"]
     environment:
@@ -46,7 +46,7 @@ services:
 
   frontend:
     build:
-      context: ../dev/yeti-feeds-frontend
+      context: ../../yeti-feeds-frontend
       dockerfile: ./docker/prod/Dockerfile
     volumes:
       - ./frontend-nginx.conf:/etc/nginx/conf.d/default.conf
@@ -54,4 +54,4 @@ services:
       api:
         condition: service_started
     ports:
-      - 127.0.0.1:18080:80
+      - 127.0.0.1:${INTEGRATION_FRONTEND_PORT:-18080}:80

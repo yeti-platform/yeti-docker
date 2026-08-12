@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+: "${DOCKER_TEST_LOG:?DOCKER_TEST_LOG must identify the invocation log}"
+
+{
+  printf 'BASE_URL=%s\n' "${BASE_URL-}"
+  printf 'INTEGRATION_FRONTEND_PORT=%s\n' "${INTEGRATION_FRONTEND_PORT-}"
+  printf 'DOCKER_ARGS='
+  printf ' %q' "$@"
+  printf '\n'
+} >> "$DOCKER_TEST_LOG"
+
+if [[ "$*" == compose\ run\ --rm\ api\ create-user* ]]; then
+  printf 'synthetic-secret-api-token\n'
+fi
