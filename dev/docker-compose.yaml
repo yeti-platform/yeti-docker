@@ -31,6 +31,7 @@ services:
         condition: service_healthy
     volumes:
       - /tmp/docker-yeti-exports:/opt/yeti/exports
+      - /tmp/docker-yeti-chromadb:/data/chromadb
       - ./yeti/:/app/
     stdin_open: true # docker run -i
     tty: true        # docker run -t
