@@ -25,6 +25,7 @@ services:
         condition: service_healthy
     volumes:
       - yeti-exports:/opt/yeti/exports
+      - yeti-chromadb-data:/data/chromadb
 
   tasks:
     image: yetiplatform/yeti:${YETI_IMAGE_TAG:-latest}
@@ -40,6 +41,7 @@ services:
         condition: service_started
     volumes:
       - yeti-exports:/opt/yeti/exports
+      - yeti-chromadb-data:/data/chromadb
 
   events-tasks:
     image: yetiplatform/yeti:${YETI_IMAGE_TAG:-latest}
@@ -114,4 +116,6 @@ volumes:
   yeti-exports:
     driver: local
   yeti-db:
+    driver: local
+  yeti-chromadb-data:
     driver: local
