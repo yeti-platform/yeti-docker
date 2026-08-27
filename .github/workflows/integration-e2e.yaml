@@ -12,6 +12,9 @@ on:
         required: false
         default: "main"
 
+permissions:
+  contents: read
+
 jobs:
   integration:
     runs-on: ubuntu-latest
@@ -19,6 +22,8 @@ jobs:
     steps:
       - name: Check out yeti-docker
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
 
       - name: Check out yeti
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
@@ -26,6 +31,7 @@ jobs:
           repository: yeti-platform/yeti
           ref: ${{ inputs.yeti_ref }}
           path: dev/yeti
+          persist-credentials: false
 
       - name: Check out yeti-feeds-frontend
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
@@ -33,6 +39,7 @@ jobs:
           repository: yeti-platform/yeti-feeds-frontend
           ref: ${{ inputs.frontend_ref }}
           path: dev/yeti-feeds-frontend
+          persist-credentials: false
 
       - name: Run the integration suite
         run: ./run.sh

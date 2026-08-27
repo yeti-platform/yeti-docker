@@ -1,23 +1,42 @@
 name: Docker prod test
 on:
+  pull_request:
+    branches:
+      - main
   push:
     branches:
       - main
   schedule:
     - cron: "0 0 * * 6"
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v2
+      - name: Check out yeti-docker
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - name: Validate shell and Compose contracts
+        run: |
+          bash -n dev/init.sh prod/init.sh integration-tests/run.sh tests/*.sh tests/fixtures/*
+          shellcheck dev/init.sh prod/init.sh integration-tests/run.sh tests/*.sh tests/fixtures/*
+          ./tests/integration-port-contract.sh
+          ./tests/production-env-contract.sh
       - name: Create CI environment from safe defaults
         run: |
           install -m 600 prod/.env.example prod/.env
           printf 'YETI_AUTH_SECRET_KEY=%s\n' "$(openssl rand -hex 64)" >> prod/.env
       - name: Pull docker images from DockerHub
-        run: docker compose --env-file prod/.env -f prod/docker-compose.yaml up -d
-      - name: Sleep for 1 minute
-        run: sleep 60
-      - name: Test access to the web UI
-        run: curl http://localhost:8000/api/v2/observables/
+        run: docker compose --env-file prod/.env -f prod/docker-compose.yaml up -d --wait --quiet-pull
+      - name: Test access to the web UI and proxied API
+        run: |
+          curl --fail --show-error --silent --retry 10 --retry-delay 6 --retry-connrefused http://localhost/ > /dev/null
+          curl --fail --show-error --silent --retry 10 --retry-delay 6 --retry-connrefused http://localhost/openapi.json > /dev/null
+      - name: Tear down the test stack
+        if: always()
+        run: docker compose --env-file prod/.env -f prod/docker-compose.yaml down --volumes
