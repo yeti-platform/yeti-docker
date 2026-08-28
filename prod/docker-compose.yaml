@@ -16,6 +16,8 @@ services:
     entrypoint:
       - /docker-entrypoint.sh
     command: ["webserver"]
+    environment:
+      - YETI_CHROMADB_HTTP_ROOT=http://chromadb:8000
     ports:
       - 8001:8000
     depends_on:
@@ -23,15 +25,18 @@ services:
         condition: service_started
       arangodb:
         condition: service_healthy
+      chromadb:
+        condition: service_started
     volumes:
       - yeti-exports:/opt/yeti/exports
-      - yeti-chromadb-data:/data/chromadb
 
   tasks:
     image: yetiplatform/yeti:${YETI_IMAGE_TAG:-latest}
     env_file:
       - ${YETI_DOCKER_ENVFILE}
     command: ['tasks']
+    environment:
+      - YETI_CHROMADB_HTTP_ROOT=http://chromadb:8000
     depends_on:
       redis:
         condition: service_started
@@ -39,9 +44,10 @@ services:
         condition: service_healthy
       api:
         condition: service_started
+      chromadb:
+        condition: service_started
     volumes:
       - yeti-exports:/opt/yeti/exports
-      - yeti-chromadb-data:/data/chromadb
 
   events-tasks:
     image: yetiplatform/yeti:${YETI_IMAGE_TAG:-latest}
@@ -68,6 +74,24 @@ services:
         condition: service_started
       arangodb:
         condition: service_healthy
+
+  # Owns the semantic search index. The API queries it and the task workers
+  # write to it, and going through a server rather than a shared directory is
+  # what lets those run on different hosts: the embedded backend is SQLite, so
+  # each process opening the files directly gets its own copy of the data.
+  #
+  # Only vectors cross this boundary -- Yeti embeds text in its own process --
+  # so this service never needs the embedding model and works with no internet
+  # access. Keep the tag in step with the `chromadb` pin in yeti's pyproject.
+  #
+  # No healthcheck: the image ships no HTTP client to probe with, so
+  # service_started is the strongest condition available. Yeti connects when it
+  # first indexes or searches rather than at startup, so a late-ready server
+  # costs an early request, not the process.
+  chromadb:
+    image: chromadb/chroma:1.5.7
+    volumes:
+      - yeti-chromadb-data:/data
 
   redis:
     image: redis:latest
