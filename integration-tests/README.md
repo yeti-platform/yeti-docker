@@ -2,7 +2,7 @@
 
 Runs Playwright against a real Yeti stack -- real ArangoDB, real API, real
 frontend, no mocked network requests -- unlike the frontend's own e2e suite
-(`dev/yeti-feeds-frontend/tests/e2e`), which deliberately mocks every
+(`../../yeti-feeds-frontend/tests/e2e`), which deliberately mocks every
 `/api/v2/**` call and never starts a backend at all. This suite exists to
 catch the class of bug that suite structurally can't: real backend bugs,
 real auth flows, real timing/consistency issues across the stack.
@@ -20,8 +20,8 @@ mocked suite is for.
 ./run.sh
 ```
 
-This builds `dev/yeti` and `dev/yeti-feeds-frontend` (as checked out
-locally -- whatever you have checked out is what gets tested), starts a
+This builds the sibling `yeti` and `yeti-feeds-frontend` repositories (whatever
+you have checked out locally is what gets tested), starts a
 fresh stack, seeds a test admin user, runs the suite, and tears everything
 down again regardless of outcome. Override the seeded credentials or target
 URL via env vars if needed:
@@ -69,9 +69,10 @@ on Debian 11, for instance).
 it doesn't run on every PR, since it's a multi-container, real-database
 suite an order of magnitude slower than either repo's own test suite. Run
 it manually from the Actions tab, optionally pointing `yeti_ref`/
-`frontend_ref` at specific branches/tags/SHAs (defaults to `main` for
-both). **Run this before cutting a release**, pointed at the commits you're
-about to tag.
+`frontend_ref` at specific branches, tags, or SHAs. The defaults are the
+known-good commits recorded in `dev/source-refs.env`; update the workflow
+defaults and that file together. **Run this before cutting a release**, pointed
+at the commits you're about to tag.
 
 ## Known gotchas
 

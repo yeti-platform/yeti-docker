@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       yeti_ref:
-        description: "yeti-platform/yeti ref to test (branch, tag, or SHA)"
+        description: "yeti-platform/yeti ref to test (defaults to the known-good source pin)"
         required: false
-        default: "main"
+        default: "84d623bee788ff5e241b209162eada99924e64d9"
       frontend_ref:
-        description: "yeti-platform/yeti-feeds-frontend ref to test"
+        description: "yeti-platform/yeti-feeds-frontend ref to test (defaults to the known-good source pin)"
         required: false
-        default: "main"
+        default: "8319f1c993f8e0c25f59354f35a6966a0c643bed"
 
 jobs:
   integration:
@@ -19,29 +19,31 @@ jobs:
     steps:
       - name: Check out yeti-docker
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          path: yeti-docker
 
       - name: Check out yeti
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           repository: yeti-platform/yeti
           ref: ${{ inputs.yeti_ref }}
-          path: dev/yeti
+          path: yeti
 
       - name: Check out yeti-feeds-frontend
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           repository: yeti-platform/yeti-feeds-frontend
           ref: ${{ inputs.frontend_ref }}
-          path: dev/yeti-feeds-frontend
+          path: yeti-feeds-frontend
 
       - name: Run the integration suite
         run: ./run.sh
-        working-directory: integration-tests
+        working-directory: yeti-docker/integration-tests
 
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: playwright-report
-          path: integration-tests/playwright/playwright-report/
+          path: yeti-docker/integration-tests/playwright/playwright-report/
           retention-days: 30

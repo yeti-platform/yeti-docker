@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+: "${GIT_TEST_LOG:?GIT_TEST_LOG must identify the invocation log}"
+
+{
+  printf 'git'
+  printf ' %q' "$@"
+  printf '\n'
+} >> "$GIT_TEST_LOG"
+
+if [[ "${1-}" == "clone" ]]; then
+  target=${3:?clone target is required}
+  mkdir -p "$target/.git"
+  if [[ "$(basename "$target")" == "yeti" ]]; then
+    printf '# synthetic backend configuration\n' > "$target/yeti.conf.sample"
+  fi
+  exit 0
+fi
+
+if [[ "${1-}" == "-C" ]]; then
+  target=${2:?repository target is required}
+  operation=${3-}
+  case "$operation" in
+    checkout)
+      if [[ "${4-}" != "--detach" || -z "${5-}" ]]; then
+        printf 'unexpected checkout invocation\n' >&2
+        exit 1
+      fi
+      printf '%s\n' "$5" > "$target/.git/test-head"
+      exit 0
+      ;;
+    rev-parse)
+      if [[ "${4-}" != "HEAD" ]]; then
+        printf 'unexpected rev-parse invocation\n' >&2
+        exit 1
+      fi
+      cat "$target/.git/test-head"
+      exit 0
+      ;;
+  esac
+fi
+
+printf 'unexpected git invocation: %s\n' "$*" >&2
+exit 1

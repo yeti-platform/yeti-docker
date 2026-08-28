@@ -1,6 +1,43 @@
 # Yeti Dev docker images
 
-Clone this repo, then run `./init.sh`. You might need some additional steps:
+Clone this repository next to `yeti` and `yeti-feeds-frontend`, then run
+`./init.sh`. The script clones either missing sibling and starts the core
+development stack. Fresh clones use the known-good commits recorded in
+`source-refs.env`. Existing sibling checkouts are never moved or reset; the
+script warns when their current commits differ from the recorded revisions.
+
+AI services are optional; if a sibling `yeti-agents` checkout is configured,
+start them with
+`YETI_AGENTS_ENABLED=True docker compose --profile agents up`.
+
+## Migrating an existing nested checkout
+
+Older `yeti-docker` checkouts kept the backend and frontend as Git submodules at
+`dev/yeti` and `dev/yeti-feeds-frontend`. Compose no longer reads those paths.
+
+Preserve any local work before switching branches. The safest migration is to
+commit it to a temporary local branch inside each nested repository, then clone
+those repositories from the workspace directory that contains `yeti-docker`:
+
+```bash
+git clone https://github.com/yeti-platform/yeti.git ./yeti
+git -C ./yeti fetch ../yeti-docker/dev/yeti HEAD:refs/heads/migrated-nested-work
+git -C ./yeti switch migrated-nested-work
+
+git clone https://github.com/yeti-platform/yeti-feeds-frontend.git ./yeti-feeds-frontend
+git -C ./yeti-feeds-frontend fetch ../yeti-docker/dev/yeti-feeds-frontend HEAD:refs/heads/migrated-nested-work
+git -C ./yeti-feeds-frontend switch migrated-nested-work
+```
+
+Do not simply move the directories: a submodule's `.git` file points back into
+the `yeti-docker` Git metadata and will be invalid from the sibling location.
+If committing locally is not appropriate, export and verify a patch that also
+accounts for untracked files before migrating.
+
+Confirm the branches, commits, uncommitted files, and local configuration in
+both sibling repositories. The old nested paths are safe to delete only after
+that verification. They may remain on disk and are ignored by Git, but neither
+Compose nor the bootstrap scripts will use them.
 
 ## `api` container
 
@@ -16,14 +53,14 @@ Then once you get a root shell in the docker container (prompt like
 `root@dcaa45f226bc:/app#`)
 
 ```bash
-poetry run uvicorn core.web.webapp:app --reload --host 0.0.0.0
+uv run uvicorn core.web.webapp:app --reload --host 0.0.0.0
 ```
 
 NOTE: You can, of course, run all these commands directly into the `docker exec`
 command:
 
 ```bash
-docker compose exec api poetry run uvicorn core.web.webapp:app --reload --host 0.0.0.0
+docker compose exec api uv run uvicorn core.web.webapp:app --reload --host 0.0.0.0
 ```
 
 This will work for all the other commands in this doc.
@@ -35,7 +72,7 @@ need to run the following command from the `api` container (prompt like
 `root@772ea966d9a8:/app#`)
 
 ```bash
-poetry run celery -A core.taskscheduler worker --loglevel=INFO
+uv run celery -A core.taskscheduler worker --loglevel=INFO
 ```
 
 ### Events tasks
@@ -45,7 +82,7 @@ consumers. To do so, you need to run the following command from the `api`
 container (prompt like `root@772ea966d9a8:/app#`).
 
 ```bash
-poetry run python -m core.events.consumers events
+uv run python -m core.events.consumers events
 ```
 
 You can adjust concurrency with `--concurrency <number_of_worker>` and enable
