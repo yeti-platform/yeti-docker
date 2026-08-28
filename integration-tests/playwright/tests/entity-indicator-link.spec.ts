@@ -70,7 +70,7 @@ test("link an entity and an indicator, and confirm they appear in each other's n
   await expect(async () => {
     await linkTargetSearch.clear();
     await linkTargetSearch.fill(indicatorName);
-    const option = page.getByRole("option", { name: indicatorName });
+    const option = page.locator('[role="option"]').filter({ hasText: indicatorName });
     await expect(option).toBeVisible();
     await option.click();
     await expect(saveLinkButton).toBeEnabled();
