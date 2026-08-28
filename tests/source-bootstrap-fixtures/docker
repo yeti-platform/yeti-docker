@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+: "${DOCKER_TEST_LOG:?DOCKER_TEST_LOG must identify the invocation log}"
+{
+  printf 'docker'
+  printf ' %q' "$@"
+  printf '\n'
+} >> "$DOCKER_TEST_LOG"

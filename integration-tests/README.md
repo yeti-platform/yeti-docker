@@ -69,9 +69,10 @@ on Debian 11, for instance).
 it doesn't run on every PR, since it's a multi-container, real-database
 suite an order of magnitude slower than either repo's own test suite. Run
 it manually from the Actions tab, optionally pointing `yeti_ref`/
-`frontend_ref` at specific branches/tags/SHAs (defaults to `main` for
-both). **Run this before cutting a release**, pointed at the commits you're
-about to tag.
+`frontend_ref` at specific branches, tags, or SHAs. The defaults are the
+known-good commits recorded in `dev/source-refs.env`; update the workflow
+defaults and that file together. **Run this before cutting a release**, pointed
+at the commits you're about to tag.
 
 ## Known gotchas
 

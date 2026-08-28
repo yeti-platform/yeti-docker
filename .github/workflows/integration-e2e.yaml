@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       yeti_ref:
-        description: "yeti-platform/yeti ref to test (branch, tag, or SHA)"
+        description: "yeti-platform/yeti ref to test (defaults to the known-good source pin)"
         required: false
-        default: "main"
+        default: "84d623bee788ff5e241b209162eada99924e64d9"
       frontend_ref:
-        description: "yeti-platform/yeti-feeds-frontend ref to test"
+        description: "yeti-platform/yeti-feeds-frontend ref to test (defaults to the known-good source pin)"
         required: false
-        default: "main"
+        default: "8319f1c993f8e0c25f59354f35a6966a0c643bed"
 
 jobs:
   integration:
