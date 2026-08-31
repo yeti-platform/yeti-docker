@@ -23,8 +23,15 @@ mocked suite is for.
 This builds `dev/yeti` and `dev/yeti-feeds-frontend` (as checked out
 locally -- whatever you have checked out is what gets tested), starts a
 fresh stack, seeds a test admin user, runs the suite, and tears everything
-down again regardless of outcome. Override the seeded credentials or target
-URL via env vars if needed:
+down again regardless of outcome. The frontend binds to host port `18080` by
+default. Override the port when it is already in use; `run.sh` derives its
+default `BASE_URL` from the selected port:
+
+```sh
+INTEGRATION_FRONTEND_PORT=18081 ./run.sh
+```
+
+You can also override the seeded credentials or provide an explicit target URL:
 
 ```sh
 TEST_USERNAME=myuser TEST_PASSWORD='...' BASE_URL=http://127.0.0.1:18080 ./run.sh
