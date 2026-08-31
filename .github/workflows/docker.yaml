@@ -28,6 +28,7 @@ jobs:
           ./tests/integration-port-contract.sh
           ./tests/production-env-contract.sh
       - name: Create CI environment from safe defaults
+        id: ci-env
         run: |
           install -m 600 prod/.env.example prod/.env
           printf 'YETI_AUTH_SECRET_KEY=%s\n' "$(openssl rand -hex 64)" >> prod/.env
@@ -37,6 +38,10 @@ jobs:
         run: |
           curl --fail --show-error --silent --retry 10 --retry-delay 6 --retry-connrefused http://localhost/ > /dev/null
           curl --fail --show-error --silent --retry 10 --retry-delay 6 --retry-connrefused http://localhost/openapi.json > /dev/null
+      # Runs on failure so a broken smoke test still releases its volumes, but
+      # only once the env file it needs exists: a job that fails before that
+      # step would otherwise report a second, invented failure for the missing
+      # file and bury the one that actually stopped it.
       - name: Tear down the test stack
-        if: always()
+        if: always() && steps.ci-env.outcome == 'success'
         run: docker compose --env-file prod/.env -f prod/docker-compose.yaml down --volumes
