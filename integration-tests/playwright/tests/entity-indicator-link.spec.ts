@@ -56,13 +56,21 @@ test("link an entity and an indicator, and confirm they appear in each other's n
   await expect(linkDialog.getByText(`New link for ${entityName}`)).toBeVisible();
   const linkTargetSearch = linkDialog.getByRole("combobox", { name: "Search for entities or indicators" });
   const saveLinkButton = linkDialog.getByRole("button", { name: "Save" });
+  // Each search result is a v-list-item carrying both role="option" and the
+  // Vuetify selection props. Its only nested button is the separate "details"
+  // link, which deliberately stops click propagation. Playwright's accessible
+  // name for the option can include that link, so match by raw text via the
+  // [role="option"] selector and click the option itself to select it.
+  //
   // The autocomplete's own /entities, /indicators, /dfiq searches go
   // through the same eventually-consistent ArangoSearch views as
-  // everywhere else -- retry until the freshly-created indicator actually
-  // shows up and the click sticks (Save reports the target as picked).
+  // everywhere else. Clear before every fill so Vue observes a real search
+  // value change on each retry; filling the same value again is a no-op and
+  // would leave the first stale response in place indefinitely.
   await expect(async () => {
+    await linkTargetSearch.clear();
     await linkTargetSearch.fill(indicatorName);
-    const option = page.getByRole("option", { name: indicatorName });
+    const option = page.locator('[role="option"]').filter({ hasText: indicatorName });
     await expect(option).toBeVisible();
     await option.click();
     await expect(saveLinkButton).toBeEnabled();

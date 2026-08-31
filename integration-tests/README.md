@@ -90,6 +90,11 @@ about to tag.
   past what's reasonable to poll for (observed >15s vs ~1-2s for an
   untagged object) -- verify deletion via a direct API call instead of the
   search view in that case (see the same spec's final step).
+- **A successful observable search assertion does not make its row stable.**
+  A pending refresh can replace the table immediately afterward and detach a
+  link before Playwright clicks it. Verify the named link and its exact details
+  `href` inside the retry, then navigate to that verified path before continuing
+  with user-level edit/delete actions (see `tests/observable-lifecycle.spec.ts`).
 - **`getByRole("dialog")`, not `.v-overlay--active`**, to target a dialog.
   Against a real backend, save/create snackbars are genuinely visible (not
   fast-forwarded like a mock) and also carry the `v-overlay--active` class,
@@ -100,15 +105,14 @@ about to tag.
   bare `tbody tr` locator picks up rows from every hidden tab too -- scope
   to `tbody tr:visible` (see `tests/entity-lifecycle.spec.ts` /
   `tests/indicator-lifecycle.spec.ts`).
-- **Retrying an entities/indicators search only works if the search box's
-  value actually changes.** Unlike Observables' own search box (which calls
-  `loadObjects()` directly on Enter), EntitySearch/IndicatorSearch only
-  re-query when the underlying Vue ref's *value* changes on `keyup.enter`
-  -- Vue refs are no-ops on an unchanged value, so refilling the same
-  search text on every retry iteration silently never re-fires the
-  request, and the test will hang on whatever the first (possibly stale)
-  response was. `clear()` then `fill()` each retry to force a real change
-  both ways (see the same two specs' search steps).
+- **Retrying entity/indicator searches only works if the search value actually
+  changes.** Unlike Observables' search box (which calls `loadObjects()` on
+  Enter), the entity/indicator pages and `EntitySelector` autocomplete depend
+  on a changed Vue ref before issuing another request. Vue drops a same-value
+  assignment as a no-op, so refilling identical text can leave the first stale
+  result in place indefinitely. `clear()` then `fill()` on every retry (and
+  press Enter for the page-level search boxes) to force a new request; see the
+  entity, indicator, and entity-indicator-link specs.
 - **The v-select used for fields like "Diamond model" (indicators) doesn't
   reliably `.click()`.** (The original cause -- the parent "New X"
   type-picker menu never closing once a type's dialog opened -- was fixed
@@ -118,14 +122,13 @@ about to tag.
   the option by role) instead -- see `tests/indicator-lifecycle.spec.ts`.
 - **A search result's `role="option"` can be the whole `v-list-item`, not
   just the item's own name text.** `EntitySelector.vue` (used by the
-  "link objects" dialog) renders each result as a name button *and* a
-  separate "details" button inside one list item that itself carries
-  `role="option"` -- Playwright's accessible-name computation for that
-  option doesn't reliably match on just the visible name (it can silently
-  resolve to zero elements, hanging or clicking nothing). Match by raw text
-  via `page.locator('[role="option"]').filter({ hasText: name })` instead,
-  and click the inner name button specifically, not the option/list-item
-  as a whole -- see `tests/entity-indicator-link.spec.ts`.
+  "link objects" dialog) binds the Vuetify selection props to that list item
+  and renders only a separate "details" button inside it. Playwright's
+  accessible-name computation for the option can include the details link,
+  so match by raw text via
+  `page.locator('[role="option"]').filter({ hasText: name })` and click the
+  option itself. The nested details button deliberately stops propagation and
+  does not select the result -- see `tests/entity-indicator-link.spec.ts`.
 - **Deep-linking to a details-page tab via a URL `#hash` on a fresh page
   load can land on the wrong tab.** The hash-driven tab-selection watcher
   can race Vue Router's own initial hash resolution on a cold `page.goto`
