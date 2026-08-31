@@ -128,7 +128,6 @@ services:
       - YETI_AGENTS_DB_PATH=/data/sessions.db
     volumes:
       - yeti-agents-data:/data
-    command: ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8888"]
 
 networks:
   default:
