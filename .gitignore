@@ -1,1 +1,9 @@
 /prod/.env
+
+# Source checkouts the dev stack mounts. They are cloned by dev/init.sh rather
+# than tracked here: they were once recorded as submodule gitlinks, but with no
+# .gitmodules to resolve them, which made every checkout of this repository
+# fail.
+/dev/yeti
+/dev/yeti-agents
+/dev/yeti-feeds-frontend
