@@ -91,6 +91,7 @@ services:
       - ./yeti-agents/.env
     volumes:
       - ./yeti-agents/:/app
+      - agents_data:/data # Persist chat sessions across container recreates
     entrypoint: [ "/bin/bash", "/app/entrypoint.sh" ]
     command: [ "manual" ]
 
@@ -112,3 +113,4 @@ services:
 
 volumes:
   ollama_data:
+  agents_data:
