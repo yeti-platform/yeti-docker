@@ -99,8 +99,14 @@ services:
   arangodb:
     image: arangodb:3.11
     restart: unless-stopped
+    # ArangoDB sizes its caches from the RAM it detects, which inside a container
+    # is the host's RAM, not this container's limit. Set a limit and tell ArangoDB
+    # about 80 % of it (integers only: 6500M, not 6.5G). See prod/README.md.
+    # mem_limit: 8g
+    # memswap_limit: 8g
     environment:
       - ARANGO_ROOT_PASSWORD=
+      # - ARANGODB_OVERRIDE_DETECTED_TOTAL_MEMORY=6500M
     volumes:
       - yeti-db:/var/lib/arangodb3
     healthcheck:
