@@ -35,6 +35,10 @@ services:
       - ./yeti/:/app/
     stdin_open: true # docker run -i
     tty: true        # docker run -t
+    # Tests and feeds run here; cap memory so a runaway one is OOM-killed
+    # inside the container instead of exhausting the host.
+    mem_limit: 16g
+    memswap_limit: 16g
 
   frontend:
     build:
