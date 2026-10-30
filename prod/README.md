@@ -24,3 +24,12 @@ when it reaches the limit, and `restart: unless-stopped` starts it again. Raise
 both together for large first imports. The override bounds the caches, not
 everything: ArangoSearch's index files are memory-mapped and have no cap in
 3.11 Community.
+
+## API workers
+
+The `api` service runs uvicorn without the file reloader and with four worker
+processes. Each worker imports every plugin when it starts, about 340 MiB, so
+the worker count sets the API's memory: four workers need about 1.5 GiB, and
+one worker per CPU core on a large host needs far more. Change the `--workers`
+value in `docker-compose.yaml` to size it: more workers only help when several
+clients, the Timesketch analyzers among them, query the API at the same time.
