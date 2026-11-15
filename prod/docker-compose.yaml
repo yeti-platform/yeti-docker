@@ -15,7 +15,13 @@ services:
       - ${YETI_DOCKER_ENVFILE}
     entrypoint:
       - /docker-entrypoint.sh
-    command: ["webserver"]
+    # The production server: no file reloader, info-level logs, and a fixed
+    # number of workers. Each worker imports every plugin at startup, about
+    # 340 MiB each, so the worker count, not the core count, sets the API's
+    # memory. Once the image's `webserver-prod` honours YETI_WEB_WORKERS
+    # (yeti-platform/yeti#1440, after 2.12.0), this can become
+    # command: ["webserver-prod"] with YETI_WEB_WORKERS=4 in the environment.
+    command: ["uv", "run", "uvicorn", "core.web.webapp:app", "--host", "0.0.0.0", "--workers", "4", "--log-level=info"]
     environment:
       - YETI_CHROMADB_HTTP_ROOT=http://chromadb:8000
     ports:
